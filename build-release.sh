@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=`date -u +%Y%m%d`
-LDFLAGS="-X main.VERSION=$VERSION"
+LDFLAGS="-X main.VERSION=$VERSION -s -w"
 
 OSES=(linux darwin windows)
 ARCHS=(amd64 386)
