@@ -18,12 +18,7 @@ TCP流转换为KCP+UDP流，❄❄❄[下载地址](https://github.com/xtaci/kcp
 
 <img src="kitty.jpg" style="width: 300px;"/>
 
-### Docker
-```
-docker pull xtaci/kcptun
-```
-
-### 使用方法
+### 使用の方法
 ```
 D:\>client_windows_amd64.exe -h
 NAME:
