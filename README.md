@@ -1,5 +1,5 @@
 # kcptun(KT)
-TCP流转换为KCP+UDP流，>>>[下载地址](https://github.com/xtaci/kcptun/releases/latest)<<< 用于***高丢包***环境中的数据传输，工作示意图:      
+TCP流转换为KCP+UDP流，>>>[下载地址](https://github.com/xtaci/kcptun/releases/latest)<<< 工作示意图:      
 ```
                 +---------------------------------------+
                 |                                       |
@@ -14,7 +14,7 @@ TCP流转换为KCP+UDP流，>>>[下载地址](https://github.com/xtaci/kcptun/re
                 |                                       |
                 +---------------------------------------+
 ```
-***kcptun是[kcp](https://github.com/skywind3000/kcp)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高软件网络流畅度(如浏览器，telnet等)，降低掉线情况。***   
+***kcptun是[kcp](https://github.com/skywind3000/kcp)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度，降低掉线情况。***   
 
 <img src="kitty.jpg" style="width: 300px;"/>
 
