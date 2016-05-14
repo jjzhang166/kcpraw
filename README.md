@@ -1,5 +1,5 @@
 # kcptun(KT)
-TCP流转换为KCP+UDP流，>>>[下载地址](https://github.com/xtaci/kcptun/releases/latest)<<< 工作示意图:      
+TCP流转换为KCP+UDP流，❄❄❄[下载地址](https://github.com/xtaci/kcptun/releases/latest)❄❄❄工作示意图:      
 ```
                 +---------------------------------------+
                 |                                       |
