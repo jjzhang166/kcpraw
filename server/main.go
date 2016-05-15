@@ -151,12 +151,12 @@ func main() {
 		cli.StringFlag{
 			Name:  "listen,l",
 			Value: ":29900",
-			Usage: "kcp server listen addr:",
+			Usage: "kcp server listen address",
 		},
 		cli.StringFlag{
 			Name:  "target, t",
 			Value: "127.0.0.1:12948",
-			Usage: "target server addr",
+			Usage: "target server address",
 		},
 		cli.StringFlag{
 			Name:   "key",

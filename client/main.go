@@ -108,12 +108,12 @@ func main() {
 		cli.StringFlag{
 			Name:  "localaddr,l",
 			Value: ":12948",
-			Usage: "local listen addr:",
+			Usage: "local listen address",
 		},
 		cli.StringFlag{
 			Name:  "remoteaddr, r",
 			Value: "vps:29900",
-			Usage: "kcp server addr",
+			Usage: "kcp server address",
 		},
 		cli.StringFlag{
 			Name:   "key",
