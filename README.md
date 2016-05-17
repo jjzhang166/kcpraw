@@ -28,7 +28,7 @@ USAGE:
    client_windows_amd64.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   20160507
+   20160517
 
 COMMANDS:
    help, h      Shows a list of commands or help for one command
@@ -53,7 +53,7 @@ USAGE:
    server_windows_amd64.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   20160507
+   20160517
 
 COMMANDS:
    help, h      Shows a list of commands or help for one command
