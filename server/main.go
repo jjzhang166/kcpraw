@@ -167,7 +167,7 @@ func main() {
 		cli.StringFlag{
 			Name:  "mode",
 			Value: "fast",
-			Usage: "mode for communication: fast, normal, default",
+			Usage: "mode for communication: fast2, fast, normal, default",
 		},
 		cli.BoolFlag{
 			Name:  "tuncrypt",
@@ -175,7 +175,7 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "mtu",
-			Value: 1400,
+			Value: 1350,
 			Usage: "set MTU of UDP packets, suggest 'tracepath' to discover path mtu",
 		},
 		cli.IntFlag{
@@ -200,6 +200,8 @@ func main() {
 			mode = kcp.MODE_DEFAULT
 		case "fast":
 			mode = kcp.MODE_FAST
+		case "fast2":
+			mode = kcp.MODE_FAST2
 		default:
 			log.Println("unrecognized mode:", c.String("mode"))
 			return
