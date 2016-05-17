@@ -34,13 +34,16 @@ COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --localaddr, -l ":12948"     local listen addr:
-   --remoteaddr, -r "vps:29900" kcp server addr
-   --key "it's a secrect"       key for communcation, must be the same as kcptun server [$KCPTUN_KEY]
-   --mode "fast"                mode for communication: fast, normal, default
-   --tuncrypt                   enable tunnel encryption, adds extra secrecy for data transfer
-   --help, -h                   show help
-   --version, -v                print the version
+   --localaddr, -l ":12948"	local listen address
+   --remoteaddr, -r "vps:29900"	kcp server address
+   --key "it's a secrect"	key for communcation, must be the same as kcptun server [$KCPTUN_KEY]
+   --mode "fast"		mode for communication: fast2, fast, normal, default
+   --tuncrypt			enable tunnel encryption, adds extra secrecy for data transfer
+   --mtu "1350"			set MTU of UDP packets, suggest 'tracepath' to discover path mtu
+   --sndwnd "128"		set send window size(num of packets)
+   --rcvwnd "1024"		set receive window size(num of packets)
+   --help, -h			show help
+   --version, -v		print the version
 
 D:\>server_windows_amd64.exe -h
 NAME:
@@ -56,13 +59,16 @@ COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --listen, -l ":29900"                kcp server listen addr:
-   --target, -t "127.0.0.1:12948"       target server addr
-   --key "it's a secrect"               key for communcation, must be the same as kcptun client [$KCPTUN_KEY]
-   --mode "fast"                        mode for communication: fast, normal, default
-   --tuncrypt                           enable tunnel encryption, adds extra secrecy for data transfer
-   --help, -h                           show help
-   --version, -v                        print the version
+   --listen, -l ":29900"		kcp server listen address
+   --target, -t "127.0.0.1:12948"	target server address
+   --key "it's a secrect"		key for communcation, must be the same as kcptun client [$KCPTUN_KEY]
+   --mode "fast"			mode for communication: fast2, fast, normal, default
+   --tuncrypt				enable tunnel encryption, adds extra secrecy for data transfer
+   --mtu "1350"				set MTU of UDP packets, suggest 'tracepath' to discover path mtu
+   --sndwnd "1024"			set send window size(num of packets)
+   --rcvwnd "1024"			set receive window size(num of packets)
+   --help, -h				show help
+   --version, -v			print the version
 ```
 ### 适用范围限定 :hash:     
 1. 实时网络游戏的数据传输        
