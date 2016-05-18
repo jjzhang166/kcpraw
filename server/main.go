@@ -82,16 +82,24 @@ func handleMux(conn *kcp.UDPSession, key, target string, tuncrypt bool, mtu, snd
 
 	// stream multiplex
 	var mux *yamux.Session
+	config := &yamux.Config{
+		AcceptBacklog:          256,
+		EnableKeepAlive:        true,
+		KeepAliveInterval:      30 * time.Second,
+		ConnectionWriteTimeout: 10 * time.Second,
+		MaxStreamWindowSize:    16777216,
+		LogOutput:              os.Stderr,
+	}
 	if tuncrypt {
 		scon := newSecureConn(key, conn, iv)
-		m, err := yamux.Server(scon, nil)
+		m, err := yamux.Server(scon, config)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 		mux = m
 	} else {
-		m, err := yamux.Server(conn, nil)
+		m, err := yamux.Server(conn, config)
 		if err != nil {
 			log.Println(err)
 			return

@@ -188,13 +188,22 @@ func main() {
 
 		// stream multiplex
 		var mux *yamux.Session
+		config := &yamux.Config{
+			AcceptBacklog:          256,
+			EnableKeepAlive:        true,
+			KeepAliveInterval:      30 * time.Second,
+			ConnectionWriteTimeout: 10 * time.Second,
+			MaxStreamWindowSize:    16777216,
+			LogOutput:              os.Stderr,
+		}
+
 		if c.Bool("tuncrypt") {
 			scon := newSecureConn(c.String("key"), kcpconn, iv)
-			session, err := yamux.Client(scon, nil)
+			session, err := yamux.Client(scon, config)
 			checkError(err)
 			mux = session
 		} else {
-			session, err := yamux.Client(kcpconn, nil)
+			session, err := yamux.Client(kcpconn, config)
 			checkError(err)
 			mux = session
 		}
