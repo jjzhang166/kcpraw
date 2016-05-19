@@ -18,7 +18,7 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 
 <img src="kitty.jpg" style="width: 300px;"/>
 
-### 使用の方法 :hash:
+### 使用の方法:cat2:
 ```bat
 D:\>client_windows_amd64.exe -h
 NAME:
@@ -70,12 +70,12 @@ GLOBAL OPTIONS:
    --help, -h				show help
    --version, -v			print the version
 ```
-### 适用范围限定:hash:     
+### 适用范围限定:cat2:   
 1. 实时网络游戏的数据传输        
 2. 跨运营商的流量传输               
 3. 其他高丢包通信链路的TCP承载      
 
-### 性能对比:hash:
+### 性能对比:cat2:
 ```
 root@vultr:~# iperf -s
 ------------------------------------------------------------
