@@ -145,6 +145,11 @@ func main() {
 			Value: 512,
 			Usage: "set receive window size(num of packets)",
 		},
+		cli.IntFlag{
+			Name:  "fec",
+			Value: 3,
+			Usage: "set FEC group size",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -171,7 +176,7 @@ func main() {
 		}
 		log.Println("communication mode:", c.String("mode"))
 		// kcp server
-		kcpconn, err := kcp.DialEncrypted(mode, c.String("remoteaddr"), []byte(c.String("key")))
+		kcpconn, err := kcp.DialEncrypted(mode, c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
 		checkError(err)
 		kcpconn.SetRetries(50)
 		log.Println("remote address:", c.String("remoteaddr"))

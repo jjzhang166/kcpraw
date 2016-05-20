@@ -196,6 +196,11 @@ func main() {
 			Value: 1024,
 			Usage: "set receive window size(num of packets)",
 		},
+		cli.IntFlag{
+			Name:  "fec",
+			Value: 3,
+			Usage: "set FEC group size",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -215,7 +220,7 @@ func main() {
 			return
 		}
 
-		lis, err := kcp.ListenEncrypted(mode, c.String("listen"), []byte(c.String("key")))
+		lis, err := kcp.ListenEncrypted(mode, c.Int("fec"), c.String("listen"), []byte(c.String("key")))
 		if err != nil {
 			log.Fatal(err)
 		}
