@@ -228,6 +228,7 @@ func main() {
 		log.Println("communication mode:", c.String("mode"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
+		log.Println("fec:", c.Int("fec"))
 		log.Println("tunnel encryption:", c.Bool("tuncrypt"))
 		for {
 			if conn, err := lis.Accept(); err == nil {

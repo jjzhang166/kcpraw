@@ -184,6 +184,7 @@ func main() {
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		kcpconn.SetMtu(c.Int("mtu"))
 		log.Println("mtu:", c.Int("mtu"))
+		log.Println("fec:", c.Int("fec"))
 
 		// generate & send iv
 		iv := make([]byte, 2*aes.BlockSize)
