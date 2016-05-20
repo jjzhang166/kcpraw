@@ -198,8 +198,8 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "fec",
-			Value: 3,
-			Usage: "set FEC group size",
+			Value: 4,
+			Usage: "set FEC group size, must be the same as client",
 		},
 	}
 	myApp.Action = func(c *cli.Context) {
