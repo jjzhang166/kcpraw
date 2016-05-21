@@ -139,7 +139,7 @@ func main() {
 			EnableKeepAlive:        true,
 			KeepAliveInterval:      30 * time.Second,
 			ConnectionWriteTimeout: 60 * time.Second,
-			MaxStreamWindowSize:    16777216,
+			MaxStreamWindowSize:    262144,
 			LogOutput:              os.Stderr,
 		}
 		session, err := yamux.Client(kcpconn, config)
