@@ -1,9 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/sha256"
 	"io"
 	"log"
 	"math/rand"
@@ -18,67 +15,12 @@ import (
 
 var VERSION = "SELFBUILD"
 
-type secureConn struct {
-	encoder cipher.Stream
-	decoder cipher.Stream
-	conn    net.Conn
-}
-
-func newSecureConn(key string, conn net.Conn, iv []byte) *secureConn {
-	sc := new(secureConn)
-	sc.conn = conn
-	commkey := sha256.Sum256([]byte(key))
-
-	// encoder
-	block, err := aes.NewCipher(commkey[:])
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	sc.encoder = cipher.NewCFBEncrypter(block, iv[aes.BlockSize:])
-
-	// decoder
-	block, err = aes.NewCipher(commkey[:])
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	sc.decoder = cipher.NewCFBDecrypter(block, iv[:aes.BlockSize])
-	return sc
-}
-
-func (sc *secureConn) Read(p []byte) (n int, err error) {
-	n, err = sc.conn.Read(p)
-	if err == nil {
-		sc.decoder.XORKeyStream(p[:n], p[:n])
-	}
-	return
-}
-
-func (sc *secureConn) Write(p []byte) (n int, err error) {
-	sc.encoder.XORKeyStream(p, p)
-	return sc.conn.Write(p)
-}
-
-func (sc *secureConn) Close() (err error) {
-	return sc.conn.Close()
-}
-
 // handle multiplex-ed connection
-func handleMux(conn *kcp.UDPSession, key, target string, tuncrypt bool, mtu, sndwnd, rcvwnd int) {
+func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int) {
 	conn.SetRetries(50)
 	conn.SetWindowSize(1024, 1024)
-	conn.SetDeadline(time.Now().Add(2 * time.Second))
 	conn.SetMtu(mtu)
 	conn.SetWindowSize(sndwnd, rcvwnd)
-	// read iv
-	iv := make([]byte, 2*aes.BlockSize)
-	if _, err := io.ReadFull(conn, iv); err != nil {
-		log.Println(err)
-		conn.Close()
-		return
-	}
-	conn.SetDeadline(time.Time{})
 
 	// stream multiplex
 	var mux *yamux.Session
@@ -90,22 +32,12 @@ func handleMux(conn *kcp.UDPSession, key, target string, tuncrypt bool, mtu, snd
 		MaxStreamWindowSize:    16777216,
 		LogOutput:              os.Stderr,
 	}
-	if tuncrypt {
-		scon := newSecureConn(key, conn, iv)
-		m, err := yamux.Server(scon, config)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		mux = m
-	} else {
-		m, err := yamux.Server(conn, config)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		mux = m
+	m, err := yamux.Server(conn, config)
+	if err != nil {
+		log.Println(err)
+		return
 	}
+	mux = m
 	defer mux.Close()
 
 	for {
@@ -177,10 +109,6 @@ func main() {
 			Value: "fast",
 			Usage: "mode for communication: fast2, fast, normal, default",
 		},
-		cli.BoolFlag{
-			Name:  "tuncrypt",
-			Usage: "enable tunnel encryption, adds extra secrecy for data transfer",
-		},
 		cli.IntFlag{
 			Name:  "mtu",
 			Value: 1350,
@@ -229,11 +157,10 @@ func main() {
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
-		log.Println("tunnel encryption:", c.Bool("tuncrypt"))
 		for {
 			if conn, err := lis.Accept(); err == nil {
 				log.Println("remote address:", conn.RemoteAddr())
-				go handleMux(conn, c.String("key"), c.String("target"), c.Bool("tuncrypt"), c.Int("mtu"), c.Int("sndwnd"), c.Int("rcvwnd"))
+				go handleMux(conn, c.String("key"), c.String("target"), c.Int("mtu"), c.Int("sndwnd"), c.Int("rcvwnd"))
 			} else {
 				log.Println(err)
 			}

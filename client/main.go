@@ -1,10 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	crand "crypto/rand"
-	"crypto/sha256"
 	"io"
 	"log"
 	"math/rand"
@@ -18,52 +14,6 @@ import (
 )
 
 var VERSION = "SELFBUILD"
-
-type secureConn struct {
-	encoder cipher.Stream
-	decoder cipher.Stream
-	conn    net.Conn
-}
-
-func newSecureConn(key string, conn net.Conn, iv []byte) *secureConn {
-	sc := new(secureConn)
-	sc.conn = conn
-	commkey := sha256.Sum256([]byte(key))
-
-	// encoder
-	block, err := aes.NewCipher(commkey[:])
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	sc.encoder = cipher.NewCFBEncrypter(block, iv[:aes.BlockSize])
-
-	// decoder
-	block, err = aes.NewCipher(commkey[:])
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	sc.decoder = cipher.NewCFBDecrypter(block, iv[aes.BlockSize:])
-	return sc
-}
-
-func (sc *secureConn) Read(p []byte) (n int, err error) {
-	n, err = sc.conn.Read(p)
-	if err == nil {
-		sc.decoder.XORKeyStream(p[:n], p[:n])
-	}
-	return
-}
-
-func (sc *secureConn) Write(p []byte) (n int, err error) {
-	sc.encoder.XORKeyStream(p, p)
-	return sc.conn.Write(p)
-}
-
-func (sc *secureConn) Close() (err error) {
-	return sc.conn.Close()
-}
 
 func handleClient(p1, p2 net.Conn) {
 	log.Println("stream opened")
@@ -126,10 +76,6 @@ func main() {
 			Value: "fast",
 			Usage: "mode for communication: fast2, fast, normal, default",
 		},
-		cli.BoolFlag{
-			Name:  "tuncrypt",
-			Usage: "enable tunnel encryption, adds extra secrecy for data transfer",
-		},
 		cli.IntFlag{
 			Name:  "mtu",
 			Value: 1350,
@@ -186,12 +132,6 @@ func main() {
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
 
-		// generate & send iv
-		iv := make([]byte, 2*aes.BlockSize)
-		io.ReadFull(crand.Reader, iv)
-		_, err = kcpconn.Write(iv)
-		checkError(err)
-
 		// stream multiplex
 		var mux *yamux.Session
 		config := &yamux.Config{
@@ -202,18 +142,9 @@ func main() {
 			MaxStreamWindowSize:    16777216,
 			LogOutput:              os.Stderr,
 		}
-
-		if c.Bool("tuncrypt") {
-			scon := newSecureConn(c.String("key"), kcpconn, iv)
-			session, err := yamux.Client(scon, config)
-			checkError(err)
-			mux = session
-		} else {
-			session, err := yamux.Client(kcpconn, config)
-			checkError(err)
-			mux = session
-		}
-		log.Println("tunnel encryption:", c.Bool("tuncrypt"))
+		session, err := yamux.Client(kcpconn, config)
+		checkError(err)
+		mux = session
 
 		for {
 			p1, err := listener.AcceptTCP()
