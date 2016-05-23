@@ -135,8 +135,8 @@ func main() {
 		var mux *yamux.Session
 		config := &yamux.Config{
 			AcceptBacklog:          256,
-			EnableKeepAlive:        false,
-			KeepAliveInterval:      30 * time.Second,
+			EnableKeepAlive:        true,
+			KeepAliveInterval:      60 * time.Second,
 			ConnectionWriteTimeout: 60 * time.Second,
 			MaxStreamWindowSize:    1048576,
 			LogOutput:              os.Stderr,
