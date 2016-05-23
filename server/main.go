@@ -17,7 +17,6 @@ var VERSION = "SELFBUILD"
 
 // handle multiplex-ed connection
 func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int) {
-	conn.SetRetries(128)
 	conn.SetWindowSize(1024, 1024)
 	conn.SetMtu(mtu)
 	conn.SetWindowSize(sndwnd, rcvwnd)
