@@ -136,10 +136,10 @@ func main() {
 		var mux *yamux.Session
 		config := &yamux.Config{
 			AcceptBacklog:          256,
-			EnableKeepAlive:        true,
-			KeepAliveInterval:      10 * time.Second,
+			EnableKeepAlive:        false,
+			KeepAliveInterval:      30 * time.Second,
 			ConnectionWriteTimeout: 60 * time.Second,
-			MaxStreamWindowSize:    262144,
+			MaxStreamWindowSize:    1048576,
 			LogOutput:              os.Stderr,
 		}
 		session, err := yamux.Client(kcpconn, config)
