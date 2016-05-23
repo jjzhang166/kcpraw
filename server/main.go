@@ -27,7 +27,7 @@ func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int
 	config := &yamux.Config{
 		AcceptBacklog:          256,
 		EnableKeepAlive:        true,
-		KeepAliveInterval:      30 * time.Second,
+		KeepAliveInterval:      10 * time.Second,
 		ConnectionWriteTimeout: 60 * time.Second,
 		MaxStreamWindowSize:    262144,
 		LogOutput:              os.Stderr,
