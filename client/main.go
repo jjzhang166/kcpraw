@@ -96,6 +96,10 @@ func main() {
 			Value: 4,
 			Usage: "set FEC group size, must be the same as server",
 		},
+		cli.BoolFlag{
+			Name:  "acknodelay",
+			Usage: "flush ack immediately when a packet is received",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -130,6 +134,8 @@ func main() {
 		kcpconn.SetMtu(c.Int("mtu"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
+		kcpconn.SetACKNoDelay(c.Bool("acknodelay"))
+		log.Println("acknodelay:", c.Bool("acknodelay"))
 
 		// stream multiplex
 		var mux *yamux.Session

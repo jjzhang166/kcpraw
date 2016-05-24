@@ -16,10 +16,11 @@ import (
 var VERSION = "SELFBUILD"
 
 // handle multiplex-ed connection
-func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int) {
+func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int, acknodelay bool) {
 	conn.SetWindowSize(1024, 1024)
 	conn.SetMtu(mtu)
 	conn.SetWindowSize(sndwnd, rcvwnd)
+	conn.SetACKNoDelay(acknodelay)
 
 	// stream multiplex
 	var mux *yamux.Session
@@ -128,6 +129,10 @@ func main() {
 			Value: 4,
 			Usage: "set FEC group size, must be the same as client",
 		},
+		cli.BoolFlag{
+			Name:  "acknodelay",
+			Usage: "flush ack immediately when a packet is received",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -156,10 +161,17 @@ func main() {
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
+		log.Println("acknodelay:", c.Bool("acknodelay"))
 		for {
 			if conn, err := lis.Accept(); err == nil {
 				log.Println("remote address:", conn.RemoteAddr())
-				go handleMux(conn, c.String("key"), c.String("target"), c.Int("mtu"), c.Int("sndwnd"), c.Int("rcvwnd"))
+				go handleMux(conn,
+					c.String("key"),
+					c.String("target"),
+					c.Int("mtu"),
+					c.Int("sndwnd"), c.Int("rcvwnd"),
+					c.Bool("acknodelay"),
+				)
 			} else {
 				log.Println(err)
 			}
