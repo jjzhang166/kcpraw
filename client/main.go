@@ -100,6 +100,11 @@ func main() {
 			Name:  "acknodelay",
 			Usage: "flush ack immediately when a packet is received",
 		},
+		cli.IntFlag{
+			Name:  "dscp",
+			Value: 46,
+			Usage: "set DSCP(6bit)",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -129,21 +134,24 @@ func main() {
 		kcpconn, err := kcp.DialEncrypted(mode, c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
 		checkError(err)
 		log.Println("remote address:", c.String("remoteaddr"))
-		kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
-		kcpconn.SetMtu(c.Int("mtu"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
-		kcpconn.SetACKNoDelay(c.Bool("acknodelay"))
 		log.Println("acknodelay:", c.Bool("acknodelay"))
+		log.Println("dscp:", c.Int("dscp"))
+
+		kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
+		kcpconn.SetMtu(c.Int("mtu"))
+		kcpconn.SetACKNoDelay(c.Bool("acknodelay"))
+		kcpconn.SetDSCP(c.Int("dscp"))
 
 		// stream multiplex
 		var mux *yamux.Session
 		config := &yamux.Config{
 			AcceptBacklog:          256,
 			EnableKeepAlive:        true,
-			KeepAliveInterval:      60 * time.Second,
-			ConnectionWriteTimeout: 60 * time.Second,
+			KeepAliveInterval:      30 * time.Second,
+			ConnectionWriteTimeout: 30 * time.Second,
 			MaxStreamWindowSize:    1048576,
 			LogOutput:              os.Stderr,
 		}

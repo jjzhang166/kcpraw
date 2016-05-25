@@ -16,19 +16,20 @@ import (
 var VERSION = "SELFBUILD"
 
 // handle multiplex-ed connection
-func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int, acknodelay bool) {
+func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int, acknodelay bool, dscp int) {
 	conn.SetWindowSize(1024, 1024)
 	conn.SetMtu(mtu)
 	conn.SetWindowSize(sndwnd, rcvwnd)
 	conn.SetACKNoDelay(acknodelay)
+	conn.SetDSCP(dscp)
 
 	// stream multiplex
 	var mux *yamux.Session
 	config := &yamux.Config{
 		AcceptBacklog:          256,
 		EnableKeepAlive:        true,
-		KeepAliveInterval:      60 * time.Second,
-		ConnectionWriteTimeout: 60 * time.Second,
+		KeepAliveInterval:      30 * time.Second,
+		ConnectionWriteTimeout: 30 * time.Second,
 		MaxStreamWindowSize:    1048576,
 		LogOutput:              os.Stderr,
 	}
@@ -133,6 +134,11 @@ func main() {
 			Name:  "acknodelay",
 			Usage: "flush ack immediately when a packet is received",
 		},
+		cli.IntFlag{
+			Name:  "dscp",
+			Value: 46,
+			Usage: "set DSCP(6bit)",
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -162,6 +168,7 @@ func main() {
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
 		log.Println("acknodelay:", c.Bool("acknodelay"))
+		log.Println("dscp:", c.Int("dscp"))
 		for {
 			if conn, err := lis.Accept(); err == nil {
 				log.Println("remote address:", conn.RemoteAddr())
@@ -171,6 +178,7 @@ func main() {
 					c.Int("mtu"),
 					c.Int("sndwnd"), c.Int("rcvwnd"),
 					c.Bool("acknodelay"),
+					c.Int("dscp"),
 				)
 			} else {
 				log.Println(err)
