@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+MD5='md5sum'
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then
+	MD5='md5'
+fi
 
 VERSION=`date -u +%Y%m%d`
 LDFLAGS="-X main.VERSION=$VERSION -s -w"
@@ -15,7 +20,7 @@ for os in ${OSES[@]}; do
 		env GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -o client_${os}_${arch}${suffix} github.com/xtaci/kcptun/client
 		env GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -o server_${os}_${arch}${suffix} github.com/xtaci/kcptun/server
 		tar -zcf kcptun-${os}-${arch}-$VERSION.tar.gz client_${os}_${arch}${suffix} server_${os}_${arch}${suffix}
-		md5 kcptun-${os}-${arch}-$VERSION.tar.gz
+		$MD5 kcptun-${os}-${arch}-$VERSION.tar.gz
 	done
 done
 
@@ -26,4 +31,4 @@ for v in ${ARMS[@]}; do
 	env GOOS=linux GOARCH=arm GOARM=$v go build -ldflags "$LDFLAGS" -o server_linux_arm$v  github.com/xtaci/kcptun/server
 done
 tar -zcf kcptun-linux-arm-$VERSION.tar.gz client_linux_arm* server_linux_arm*
-md5 kcptun-linux-arm-$VERSION.tar.gz
+$MD5 kcptun-linux-arm-$VERSION.tar.gz
