@@ -135,7 +135,7 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "dscp",
-			Value: 46,
+			Value: 0,
 			Usage: "set DSCP(6bit)",
 		},
 	}
