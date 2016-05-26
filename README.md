@@ -20,61 +20,9 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 <img src="kitty.jpg" style="width: 300px;"/>
 
 ### 使用の方法:lollipop:
-```
-$ ./client_darwin_amd64 -h
-NAME:
-   kcptun - kcptun client
+<img src="client.png" style="width: 780px;"/>
+<img src="server.png" style="width: 780px;"/>
 
-USAGE:
-   ./client_darwin_amd64 [global options] command [command options] [arguments...]
-
-VERSION:
-   20160525
-
-COMMANDS:
-   help, h	Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --localaddr, -l ":12948"	local listen address
-   --remoteaddr, -r "vps:29900"	kcp server address
-   --key "it's a secrect"	key for communcation, must be the same as kcptun server [$KCPTUN_KEY]
-   --mode "fast"		mode for communication: fast2, fast, normal, default
-   --mtu "1350"			set MTU of UDP packets, suggest 'tracepath' to discover path mtu
-   --sndwnd "128"		set send window size(num of packets)
-   --rcvwnd "512"		set receive window size(num of packets)
-   --fec "4"			set FEC group size, must be the same as server
-   --acknodelay			flush ack immediately when a packet is received
-   --dscp "46"			set DSCP(6bit)
-   --help, -h			show help
-   --version, -v		print the version
-   
-$ ./server_darwin_amd64 -h
-NAME:
-   kcptun - kcptun server
-
-USAGE:
-   ./server_darwin_amd64 [global options] command [command options] [arguments...]
-
-VERSION:
-   20160525
-
-COMMANDS:
-   help, h	Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --listen, -l ":29900"		kcp server listen address
-   --target, -t "127.0.0.1:12948"	target server address
-   --key "it's a secrect"		key for communcation, must be the same as kcptun client [$KCPTUN_KEY]
-   --mode "fast"			mode for communication: fast2, fast, normal, default
-   --mtu "1350"				set MTU of UDP packets, suggest 'tracepath' to discover path mtu
-   --sndwnd "1024"			set send window size(num of packets)
-   --rcvwnd "1024"			set receive window size(num of packets)
-   --fec "4"				set FEC group size, must be the same as client
-   --acknodelay				flush ack immediately when a packet is received
-   --dscp "46"				set DSCP(6bit)
-   --help, -h				show help
-   --version, -v			print the version
-```
 ### 适用范围限定:lollipop:   
 1. 实时网络游戏的数据传输        
 2. 跨运营商的流量传输               
