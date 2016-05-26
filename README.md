@@ -1,5 +1,6 @@
 # kcptun(KT)
-TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/kcptun/releases/latest):snowflake:工作示意图：     
+TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/kcptun/releases/latest):snowflake:工作示意图：  
+
 ```
                 +---------------------------------------+
                 |                                       |
