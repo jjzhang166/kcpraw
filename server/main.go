@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/codegangsta/cli"
 	"github.com/hashicorp/yamux"
+	"github.com/urfave/cli"
 	"github.com/xtaci/kcp-go"
 )
 
