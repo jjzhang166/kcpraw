@@ -3,7 +3,7 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 
 ![kcptun](kcptun.jpg)
 
-***kcptun是[kcp](https://github.com/skywind3000/kcp)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度，降低掉线情况。***   
+***kcptun是[kcp](https://github.com/xtaci/kcp-go)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度，降低掉线情况。***   
 
 ### *使用の方法* :lollipop:
 ![client](client.png)
