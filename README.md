@@ -6,8 +6,8 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 ***kcptun是[kcp](https://github.com/skywind3000/kcp)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度，降低掉线情况。***   
 
 ### 使用の方法:lollipop:
-<img src="client.png" style="width: 780px;"/>
-<img src="server.png" style="width: 780px;"/>
+![client](client.png)
+![server](server.png)
 
 ### 适用范围限定:lollipop:   
 1. 实时网络游戏的数据传输        
