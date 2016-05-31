@@ -13,7 +13,7 @@ fi
 VERSION=`date -u +%Y%m%d`
 LDFLAGS="-X main.VERSION=$VERSION -s -w"
 
-OSES=(linux darwin windows)
+OSES=(linux darwin windows freebsd)
 ARCHS=(amd64 386)
 for os in ${OSES[@]}; do
 	for arch in ${ARCHS[@]}; do
