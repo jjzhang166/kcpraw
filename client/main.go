@@ -74,7 +74,7 @@ func main() {
 		cli.StringFlag{
 			Name:  "mode",
 			Value: "fast",
-			Usage: "mode for communication: fast2, fast, normal, default",
+			Usage: "mode for communication: fast3, fast2, fast, normal",
 		},
 		cli.IntFlag{
 			Name:  "mtu",
@@ -115,24 +115,24 @@ func main() {
 		log.Println("listening on:", listener.Addr())
 
 	START_KCP:
-		var mode kcp.Mode
+
+		// kcp server
+		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
+		checkError(err)
+		nodelay, interval, resend, nc := 0, 30, 2, 0
+
 		switch c.String("mode") {
 		case "normal":
-			mode = kcp.MODE_NORMAL
-		case "default":
-			mode = kcp.MODE_DEFAULT
+			nodelay, interval, resend, nc = 0, 30, 2, 1
 		case "fast":
-			mode = kcp.MODE_FAST
+			nodelay, interval, resend, nc = 0, 20, 2, 1
 		case "fast2":
-			mode = kcp.MODE_FAST2
-		default:
-			log.Println("unrecognized mode:", c.String("mode"))
-			return
+			nodelay, interval, resend, nc = 1, 20, 2, 1
+		case "fast3":
+			nodelay, interval, resend, nc = 1, 10, 2, 1
 		}
-		log.Println("communication mode:", c.String("mode"))
-		// kcp server
-		kcpconn, err := kcp.DialWithOptions(mode, c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
-		checkError(err)
+
+		log.Println("nodelay parameters:", nodelay, interval, resend, nc)
 		log.Println("remote address:", c.String("remoteaddr"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
@@ -140,6 +140,7 @@ func main() {
 		log.Println("acknodelay:", c.Bool("acknodelay"))
 		log.Println("dscp:", c.Int("dscp"))
 
+		kcpconn.SetNoDelay(nodelay, interval, resend, nc)
 		kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
 		kcpconn.SetMtu(c.Int("mtu"))
 		kcpconn.SetACKNoDelay(c.Bool("acknodelay"))

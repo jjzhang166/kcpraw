@@ -16,12 +16,7 @@ import (
 var VERSION = "SELFBUILD"
 
 // handle multiplex-ed connection
-func handleMux(conn *kcp.UDPSession, key, target string, mtu, sndwnd, rcvwnd int, acknodelay bool, dscp int) {
-	conn.SetMtu(mtu)
-	conn.SetWindowSize(sndwnd, rcvwnd)
-	conn.SetACKNoDelay(acknodelay)
-	conn.SetDSCP(dscp)
-
+func handleMux(conn *kcp.UDPSession, target string) {
 	// stream multiplex
 	var mux *yamux.Session
 	config := &yamux.Config{
@@ -107,7 +102,7 @@ func main() {
 		cli.StringFlag{
 			Name:  "mode",
 			Value: "fast",
-			Usage: "mode for communication: fast2, fast, normal, default",
+			Usage: "mode for communication: fast3, fast2, fast, normal",
 		},
 		cli.IntFlag{
 			Name:  "mtu",
@@ -141,28 +136,24 @@ func main() {
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
-		// KCP listen
-		var mode kcp.Mode
+		nodelay, interval, resend, nc := 0, 30, 2, 0
 		switch c.String("mode") {
 		case "normal":
-			mode = kcp.MODE_NORMAL
-		case "default":
-			mode = kcp.MODE_DEFAULT
+			nodelay, interval, resend, nc = 0, 30, 2, 1
 		case "fast":
-			mode = kcp.MODE_FAST
+			nodelay, interval, resend, nc = 0, 20, 2, 1
 		case "fast2":
-			mode = kcp.MODE_FAST2
-		default:
-			log.Println("unrecognized mode:", c.String("mode"))
-			return
+			nodelay, interval, resend, nc = 1, 20, 2, 1
+		case "fast3":
+			nodelay, interval, resend, nc = 1, 10, 2, 1
 		}
 
-		lis, err := kcp.ListenWithOptions(mode, c.Int("fec"), c.String("listen"), []byte(c.String("key")))
+		lis, err := kcp.ListenWithOptions(c.Int("fec"), c.String("listen"), []byte(c.String("key")))
 		if err != nil {
 			log.Fatal(err)
 		}
 		log.Println("listening on ", lis.Addr())
-		log.Println("communication mode:", c.String("mode"))
+		log.Println("nodelay parameters:", nodelay, interval, resend, nc)
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("fec:", c.Int("fec"))
@@ -171,14 +162,12 @@ func main() {
 		for {
 			if conn, err := lis.Accept(); err == nil {
 				log.Println("remote address:", conn.RemoteAddr())
-				go handleMux(conn,
-					c.String("key"),
-					c.String("target"),
-					c.Int("mtu"),
-					c.Int("sndwnd"), c.Int("rcvwnd"),
-					c.Bool("acknodelay"),
-					c.Int("dscp"),
-				)
+				conn.SetNoDelay(nodelay, interval, resend, nc)
+				conn.SetMtu(c.Int("mtu"))
+				conn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
+				conn.SetACKNoDelay(c.Bool("acknodelay"))
+				conn.SetDSCP(c.Int("dscp"))
+				go handleMux(conn, c.String("target"))
 			} else {
 				log.Println(err)
 			}
