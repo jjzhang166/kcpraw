@@ -136,7 +136,7 @@ func main() {
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
-		nodelay, interval, resend, nc := 0, 30, 2, 0
+		nodelay, interval, resend, nc := 0, 40, 0, 0
 		switch c.String("mode") {
 		case "normal":
 			nodelay, interval, resend, nc = 0, 30, 2, 1

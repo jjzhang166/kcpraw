@@ -119,7 +119,7 @@ func main() {
 		// kcp server
 		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
 		checkError(err)
-		nodelay, interval, resend, nc := 0, 30, 2, 0
+		nodelay, interval, resend, nc := 0, 40, 0, 0
 
 		switch c.String("mode") {
 		case "normal":
