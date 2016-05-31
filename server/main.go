@@ -157,7 +157,7 @@ func main() {
 			return
 		}
 
-		lis, err := kcp.ListenEncrypted(mode, c.Int("fec"), c.String("listen"), []byte(c.String("key")))
+		lis, err := kcp.ListenWithOptions(mode, c.Int("fec"), c.String("listen"), []byte(c.String("key")))
 		if err != nil {
 			log.Fatal(err)
 		}

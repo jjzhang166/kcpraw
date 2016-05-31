@@ -131,7 +131,7 @@ func main() {
 		}
 		log.Println("communication mode:", c.String("mode"))
 		// kcp server
-		kcpconn, err := kcp.DialEncrypted(mode, c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
+		kcpconn, err := kcp.DialWithOptions(mode, c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
 		checkError(err)
 		log.Println("remote address:", c.String("remoteaddr"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
