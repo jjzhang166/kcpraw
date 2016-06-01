@@ -139,11 +139,11 @@ func main() {
 		nodelay, interval, resend, nc := 0, 40, 0, 0
 		switch c.String("mode") {
 		case "normal":
-			nodelay, interval, resend, nc = 0, 30, 2, 1
+			nodelay, interval, resend, nc = 0, 30, 0, 1
 		case "fast":
-			nodelay, interval, resend, nc = 0, 20, 2, 1
+			nodelay, interval, resend, nc = 0, 20, 0, 1
 		case "fast2":
-			nodelay, interval, resend, nc = 1, 20, 2, 1
+			nodelay, interval, resend, nc = 1, 20, 0, 1
 		case "fast3":
 			nodelay, interval, resend, nc = 1, 10, 2, 1
 		}
