@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/hashicorp/yamux"
@@ -50,6 +52,7 @@ func checkError(err error) {
 
 func main() {
 	rand.Seed(int64(time.Now().Nanosecond()))
+	go sig_handler()
 	myApp := cli.NewApp()
 	myApp.Name = "kcptun"
 	myApp.Usage = "kcptun client"
@@ -177,4 +180,16 @@ func main() {
 		}
 	}
 	myApp.Run(os.Args)
+}
+
+func sig_handler() {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGUSR1)
+
+	for {
+		switch <-ch {
+		case syscall.SIGUSR1:
+			log.Printf("KCP SNMP:%+v", kcp.DefaultSnmp.Copy())
+		}
+	}
 }
