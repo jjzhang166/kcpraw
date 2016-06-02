@@ -41,7 +41,7 @@ func handleMux(conn *kcp.UDPSession, target string) {
 			log.Println(err)
 			return
 		}
-		p2, err := net.Dial("tcp", target)
+		p2, err := net.DialTimeout("tcp", target, 5*time.Second)
 		if err != nil {
 			log.Println(err)
 			return
