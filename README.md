@@ -15,15 +15,11 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 3. 其他高丢包通信链路的TCP承载      
 
 ### *Mode参数* :lollipop: 
-响应速度:
-```
-fast3>fast2>fast>normal>default
-``` 
-带宽浪费:
-```
-fast3>fast2>fast>normal>default
-``` 
-中间mode参数比较均衡
+响应速度:     
+*fast3 > [fast2] > fast > normal > default*        
+有效载荷比:     
+*default > normal > fast > [fast2] > fast3*       
+中间mode参数比较均衡，总之就是越快越浪费带宽       
 
 
 ### *性能对比* :lollipop:
