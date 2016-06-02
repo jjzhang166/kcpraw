@@ -24,7 +24,7 @@ func handleMux(conn *kcp.UDPSession, target string) {
 		EnableKeepAlive:        true,
 		KeepAliveInterval:      30 * time.Second,
 		ConnectionWriteTimeout: 30 * time.Second,
-		MaxStreamWindowSize:    1048576,
+		MaxStreamWindowSize:    16777216,
 		LogOutput:              os.Stderr,
 	}
 	m, err := yamux.Server(conn, config)
