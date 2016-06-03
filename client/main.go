@@ -105,6 +105,26 @@ func main() {
 			Value: 46,
 			Usage: "set DSCP(6bit)",
 		},
+		cli.IntFlag{
+			Name:   "nodelay",
+			Value:  0,
+			Hidden: true,
+		},
+		cli.IntFlag{
+			Name:   "interval",
+			Value:  40,
+			Hidden: true,
+		},
+		cli.IntFlag{
+			Name:   "resend",
+			Value:  0,
+			Hidden: true,
+		},
+		cli.IntFlag{
+			Name:   "nc",
+			Value:  0,
+			Hidden: true,
+		},
 	}
 	myApp.Action = func(c *cli.Context) {
 		log.Println("version:", VERSION)
@@ -119,7 +139,7 @@ func main() {
 		// kcp server
 		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
 		checkError(err)
-		nodelay, interval, resend, nc := 0, 40, 0, 0
+		nodelay, interval, resend, nc := c.Int("nodelay"), c.Int("interval"), c.Int("resend"), c.Int("nc")
 
 		switch c.String("mode") {
 		case "normal":
