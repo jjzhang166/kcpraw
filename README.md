@@ -20,7 +20,7 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 有效载荷比:     
 *default > normal > fast >* ***[fast2]*** *> fast3*       
 中间mode参数比较均衡，总之就是越快越浪费带宽，推荐模式***fast2***         
-更高级的手动档需要理解KCP协议，并通过隐藏参数调整，例如:
+更高级的***手动档***需要理解KCP协议，并通过***隐藏参数***调整，例如:
 ```
  -mode manual -nodelay 1 -resend 2 -nc 1 -interval 20
 ```
@@ -49,7 +49,9 @@ type Snmp struct {
     FECSegs         uint64
 }
 ```
-通过```kill -SIGUSR1 pid``` 可以在控制台打印出SNMP信息，通常用于调整载荷比，例如通过观察RetransSegs,FastRetransSegs,LostSegs,OutSegs这几者的比例，用于参考调整-mode manual,fec的参数。
+
+使用```kill -SIGUSR1 pid``` 可以在控制台打印出SNMP信息，通常用于精细调整***当前链路的有效载荷比***。        
+观察```RetransSegs,FastRetransSegs,LostSegs,OutSegs```这几者的数值比例，用于参考调整```-mode manual,fec```的参数。        
 
 ### *性能对比* :lollipop:
 ```
