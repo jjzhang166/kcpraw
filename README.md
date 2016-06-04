@@ -25,7 +25,7 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
  -mode manual -nodelay 1 -resend 2 -nc 1 -interval 20
 ```
 
-### SNMP
+### *SNMP* :lollipop:
 ```go
 // Snmp defines network statistics indicator
 type Snmp struct {
