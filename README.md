@@ -19,7 +19,7 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 *fast3 > [fast2] > fast > normal > default*        
 有效载荷比:     
 *default > normal > fast > [fast2] > fast3*       
-中间mode参数比较均衡，总之就是越快越浪费带宽       
+中间mode参数比较均衡，总之就是越快越浪费带宽，推荐模式***fast2***       
 
 
 ### *性能对比* :lollipop:
