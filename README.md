@@ -14,13 +14,42 @@ TCP流转换为KCP+UDP流，:snowflake:[下载地址](https://github.com/xtaci/k
 2. 跨运营商的流量传输               
 3. 其他高丢包通信链路的TCP承载      
 
-### *Mode参数* :lollipop: 
+### *内置模式* :lollipop: 
 响应速度:     
-*fast3 > [fast2] > fast > normal > default*        
+*fast3 >* ***[fast2]*** *> fast > normal > default*        
 有效载荷比:     
-*default > normal > fast > [fast2] > fast3*       
-中间mode参数比较均衡，总之就是越快越浪费带宽，推荐模式***fast2***       
+*default > normal > fast >* ***[fast2]*** *> fast3*       
+中间mode参数比较均衡，总之就是越快越浪费带宽，推荐模式***fast2***         
+更高级的手动档需要理解KCP协议，并通过隐藏参数调整，例如:
+```
+ -mode manual -nodelay 1 -resend 2 -nc 1 -interval 20
+```
 
+### SNMP
+```go
+// Snmp defines network statistics indicator
+type Snmp struct {
+    BytesSent       uint64
+    BytesReceived   uint64
+    MaxConn         uint64
+    ActiveOpens     uint64
+    PassiveOpens    uint64
+    CurrEstab       uint64
+    InErrs          uint64
+    InCsumErrors    uint64
+    InSegs          uint64
+    OutSegs         uint64
+    OutBytes        uint64
+    RetransSegs     uint64
+    FastRetransSegs uint64
+    LostSegs        uint64
+    RepeatSegs      uint64
+    FECRecovered    uint64
+    FECErrs         uint64
+    FECSegs         uint64
+}
+```
+通过```kill -SIGUSR1 pid``` 可以在控制台打印出SNMP信息，通常用于调整载荷比，例如通过观察RetransSegs,FastRetransSegs,LostSegs,OutSegs这几者的比例，用于参考调整-mode manual,fec的参数。
 
 ### *性能对比* :lollipop:
 ```
