@@ -3,8 +3,8 @@ TCP流转换为KCP+UDP流，:zap:***[下载地址](https://github.com/xtaci/kcpt
 
 ![kcptun](kcptun.png)
 
-***kcptun是[kcp](https://github.com/xtaci/kcp-go)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度，降低掉线情况。***   
-_极简设计，客户端＋服务器源码总共400行_ 。        
+***kcptun是[kcp](https://github.com/xtaci/kcp-go)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高网络流畅度。***   
+_采用极简设计，客户端＋服务器源码总共400行，方便用户自己扩展_ 。        
 _感谢[skywind3000](https://github.com/skywind3000/kcp)提供的如此优秀的协议设计。_          
 
 ### *使用の方法* :lollipop:
