@@ -24,7 +24,7 @@ _感谢[skywind3000](https://github.com/skywind3000/kcp)提供的如此优秀的
 中间mode参数比较均衡，总之就是越快越浪费带宽，推荐模式 ***fast2***         
 更高级的 ***手动档*** 需要理解KCP协议，并通过 ***隐藏参数*** 调整，例如:
 ```
- -mode manual -nodelay 1 -resend 4 -nc 1 -interval 20 -fec 4
+ -mode manual -nodelay 1 -resend 2 -nc 1 -interval 20
 ```
 
 ### *SNMP* :lollipop:
