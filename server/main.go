@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha1"
 	"io"
 	"log"
 	"math/rand"
@@ -8,12 +11,18 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/crypto/tea"
+
 	"github.com/hashicorp/yamux"
 	"github.com/urfave/cli"
 	"github.com/xtaci/kcp-go"
 )
 
-var VERSION = "SELFBUILD"
+var (
+	VERSION = "SELFBUILD"
+	SALT    = "kcp-go"
+)
 
 // handle multiplex-ed connection
 func handleMux(conn *kcp.UDPSession, target string) {
@@ -100,6 +109,11 @@ func main() {
 			EnvVar: "KCPTUN_KEY",
 		},
 		cli.StringFlag{
+			Name:  "crypt",
+			Value: "aes",
+			Usage: "methods for encryption: aes, tea",
+		},
+		cli.StringFlag{
 			Name:  "mode",
 			Value: "fast",
 			Usage: "mode for communication: fast3, fast2, fast, normal",
@@ -168,11 +182,21 @@ func main() {
 			nodelay, interval, resend, nc = 1, 10, 2, 1
 		}
 
-		lis, err := kcp.ListenWithOptions(c.Int("fec"), c.String("listen"), []byte(c.String("key")))
+		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
+		var block cipher.Block
+		switch c.String("crypt") {
+		case "tea":
+			block, _ = tea.NewCipherWithRounds(pass[:16], 16)
+		default:
+			block, _ = aes.NewCipher(pass)
+		}
+
+		lis, err := kcp.ListenWithOptions(c.Int("fec"), c.String("listen"), block)
 		if err != nil {
 			log.Fatal(err)
 		}
 		log.Println("listening on ", lis.Addr())
+		log.Println("encryption:", c.String("crypt"))
 		log.Println("nodelay parameters:", nodelay, interval, resend, nc)
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))

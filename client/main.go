@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/sha1"
 	"io"
 	"log"
 	"math/rand"
@@ -8,12 +11,18 @@ import (
 	"os"
 	"time"
 
+	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/crypto/tea"
+
 	"github.com/hashicorp/yamux"
 	"github.com/urfave/cli"
 	"github.com/xtaci/kcp-go"
 )
 
-var VERSION = "SELFBUILD"
+var (
+	VERSION = "SELFBUILD"
+	SALT    = "kcp-go"
+)
 
 func handleClient(p1, p2 net.Conn) {
 	log.Println("stream opened")
@@ -70,6 +79,11 @@ func main() {
 			Value:  "it's a secrect",
 			Usage:  "key for communcation, must be the same as kcptun server",
 			EnvVar: "KCPTUN_KEY",
+		},
+		cli.StringFlag{
+			Name:  "crypt",
+			Value: "aes",
+			Usage: "methods for encryption: aes, tea",
 		},
 		cli.StringFlag{
 			Name:  "mode",
@@ -132,12 +146,18 @@ func main() {
 		checkError(err)
 		listener, err := net.ListenTCP("tcp", addr)
 		checkError(err)
-		log.Println("listening on:", listener.Addr())
+		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
+		var block cipher.Block
+		switch c.String("crypt") {
+		case "tea":
+			block, _ = tea.NewCipherWithRounds(pass[:16], 16)
+		default:
+			block, _ = aes.NewCipher(pass)
+		}
 
 	START_KCP:
-
 		// kcp server
-		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), []byte(c.String("key")))
+		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
 		checkError(err)
 		nodelay, interval, resend, nc := c.Int("nodelay"), c.Int("interval"), c.Int("resend"), c.Int("nc")
 
@@ -152,6 +172,8 @@ func main() {
 			nodelay, interval, resend, nc = 1, 10, 2, 1
 		}
 
+		log.Println("listening on:", listener.Addr())
+		log.Println("encryption:", c.String("crypt"))
 		log.Println("nodelay parameters:", nodelay, interval, resend, nc)
 		log.Println("remote address:", c.String("remoteaddr"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
