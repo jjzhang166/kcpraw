@@ -20,6 +20,7 @@ _采用极简设计，客户端＋服务器源码总共400行，方便用户自�
 适用大部分ADSL接入（非对称上下行）的参数（实验环境电信100M ADSL）
 SERVER:   -mtu 1400 -sndwnd 2048 -rcvwnd 2048 -mode fast2
 CLIENT:   -mtu 1400 -sndwnd 128 -rcvwnd 2048 -mode fast2
+其它带宽请按比例降低窗口，比如50M ADSL，把-sndwnd -rcvwnd减掉一半
 ```
 *巭孬嫑乱动*        
 
