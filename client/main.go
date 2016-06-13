@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/sha1"
 	"io"
 	"log"
@@ -12,7 +10,6 @@ import (
 	"time"
 
 	"golang.org/x/crypto/pbkdf2"
-	"golang.org/x/crypto/tea"
 
 	"github.com/hashicorp/yamux"
 	"github.com/urfave/cli"
@@ -147,12 +144,12 @@ func main() {
 		listener, err := net.ListenTCP("tcp", addr)
 		checkError(err)
 		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
-		var block cipher.Block
+		var block kcp.BlockCrypt
 		switch c.String("crypt") {
 		case "tea":
-			block, _ = tea.NewCipherWithRounds(pass[:16], 16)
+			block, _ = kcp.NewTEABlockCrypt(pass[:16])
 		default:
-			block, _ = aes.NewCipher(pass)
+			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
 
 	START_KCP:
