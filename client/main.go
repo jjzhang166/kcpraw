@@ -80,7 +80,7 @@ func main() {
 		cli.StringFlag{
 			Name:  "crypt",
 			Value: "aes",
-			Usage: "methods for encryption: aes, tea",
+			Usage: "methods for encryption: aes, tea, xor",
 		},
 		cli.StringFlag{
 			Name:  "mode",
@@ -151,6 +151,8 @@ func main() {
 		switch c.String("crypt") {
 		case "tea":
 			block, _ = kcp.NewTEABlockCrypt(pass[:16])
+		case "xor":
+			block, _ = kcp.NewSimpleXORBlockCrypt(pass)
 		default:
 			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
