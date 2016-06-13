@@ -144,6 +144,9 @@ func main() {
 		listener, err := net.ListenTCP("tcp", addr)
 		checkError(err)
 		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
+
+	START_KCP:
+		// kcp server
 		var block kcp.BlockCrypt
 		switch c.String("crypt") {
 		case "tea":
@@ -151,9 +154,6 @@ func main() {
 		default:
 			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
-
-	START_KCP:
-		// kcp server
 		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
 		checkError(err)
 		nodelay, interval, resend, nc := c.Int("nodelay"), c.Int("interval"), c.Int("resend"), c.Int("nc")
