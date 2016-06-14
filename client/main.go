@@ -89,7 +89,7 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "conn",
-			Value: 4,
+			Value: 1,
 			Usage: "establish N physical connections as specified by 'conn' to server",
 		},
 		cli.IntFlag{
