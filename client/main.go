@@ -88,6 +88,11 @@ func main() {
 			Usage: "mode for communication: fast3, fast2, fast, normal",
 		},
 		cli.IntFlag{
+			Name:  "conn",
+			Value: 4,
+			Usage: "establish N physical connections as specified by 'conn' to server",
+		},
+		cli.IntFlag{
 			Name:  "mtu",
 			Value: 1350,
 			Usage: "set MTU of UDP packets, suggest 'tracepath' to discover path mtu",
@@ -145,7 +150,6 @@ func main() {
 		checkError(err)
 		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
 
-	START_KCP:
 		// kcp server
 		var block kcp.BlockCrypt
 		switch c.String("crypt") {
@@ -158,8 +162,6 @@ func main() {
 		default:
 			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
-		kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
-		checkError(err)
 		nodelay, interval, resend, nc := c.Int("nodelay"), c.Int("interval"), c.Int("resend"), c.Int("nc")
 
 		switch c.String("mode") {
@@ -182,41 +184,49 @@ func main() {
 		log.Println("fec:", c.Int("fec"))
 		log.Println("acknodelay:", c.Bool("acknodelay"))
 		log.Println("dscp:", c.Int("dscp"))
+		log.Println("conn:", c.Int("conn"))
+		createConn := func() *yamux.Session {
+			kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
+			checkError(err)
+			kcpconn.SetNoDelay(nodelay, interval, resend, nc)
+			kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
+			kcpconn.SetMtu(c.Int("mtu"))
+			kcpconn.SetACKNoDelay(c.Bool("acknodelay"))
+			kcpconn.SetDSCP(c.Int("dscp"))
 
-		kcpconn.SetNoDelay(nodelay, interval, resend, nc)
-		kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
-		kcpconn.SetMtu(c.Int("mtu"))
-		kcpconn.SetACKNoDelay(c.Bool("acknodelay"))
-		kcpconn.SetDSCP(c.Int("dscp"))
-
-		// stream multiplex
-		var mux *yamux.Session
-		config := &yamux.Config{
-			AcceptBacklog:          256,
-			EnableKeepAlive:        true,
-			KeepAliveInterval:      30 * time.Second,
-			ConnectionWriteTimeout: 30 * time.Second,
-			MaxStreamWindowSize:    16777216,
-			LogOutput:              os.Stderr,
+			// stream multiplex
+			config := &yamux.Config{
+				AcceptBacklog:          256,
+				EnableKeepAlive:        true,
+				KeepAliveInterval:      30 * time.Second,
+				ConnectionWriteTimeout: 30 * time.Second,
+				MaxStreamWindowSize:    16777216,
+				LogOutput:              os.Stderr,
+			}
+			session, err := yamux.Client(kcpconn, config)
+			checkError(err)
+			return session
 		}
-		session, err := yamux.Client(kcpconn, config)
-		checkError(err)
-		mux = session
 
+		var muxes []*yamux.Session
+		for i := 0; i < c.Int("conn"); i++ {
+			muxes = append(muxes, createConn())
+		}
+
+		rr := 0
 		for {
 			p1, err := listener.AcceptTCP()
-			if err != nil {
-				log.Println(err)
-				continue
-			}
+			checkError(err)
+			mux := muxes[rr%len(muxes)]
 			p2, err := mux.Open()
 			if err != nil { // yamux failure
 				log.Println(err)
-				kcpconn.Close()
 				p1.Close()
-				goto START_KCP
+				mux.Close()
+				muxes[rr%len(muxes)] = createConn()
 			}
 			go handleClient(p1, p2)
+			rr++
 		}
 	}
 	myApp.Run(os.Args)
