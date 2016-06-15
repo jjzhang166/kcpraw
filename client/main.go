@@ -208,22 +208,23 @@ func main() {
 			return session
 		}
 
+		numconn := c.Int("conn")
 		var muxes []*yamux.Session
-		for i := 0; i < c.Int("conn"); i++ {
+		for i := 0; i < numconn; i++ {
 			muxes = append(muxes, createConn())
 		}
 
-		rr := 0
+		rr := uint16(0)
 		for {
 			p1, err := listener.AcceptTCP()
 			checkError(err)
-			mux := muxes[rr%len(muxes)]
+			mux := muxes[rr%uint16(numconn)]
 			p2, err := mux.Open()
 			if err != nil { // yamux failure
 				log.Println(err)
 				p1.Close()
 				mux.Close()
-				muxes[rr%len(muxes)] = createConn()
+				muxes[rr%uint16(numconn)] = createConn()
 				continue
 			}
 			go handleClient(p1, p2)
