@@ -224,6 +224,7 @@ func main() {
 				p1.Close()
 				mux.Close()
 				muxes[rr%len(muxes)] = createConn()
+				continue
 			}
 			go handleClient(p1, p2)
 			rr++
