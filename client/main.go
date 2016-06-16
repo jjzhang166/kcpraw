@@ -151,17 +151,6 @@ func main() {
 		pass := pbkdf2.Key([]byte(c.String("key")), []byte(SALT), 4096, 32, sha1.New)
 
 		// kcp server
-		var block kcp.BlockCrypt
-		switch c.String("crypt") {
-		case "tea":
-			block, _ = kcp.NewTEABlockCrypt(pass[:16])
-		case "xor":
-			block, _ = kcp.NewSimpleXORBlockCrypt(pass)
-		case "none":
-			block, _ = kcp.NewNoneBlockCrypt(pass)
-		default:
-			block, _ = kcp.NewAESBlockCrypt(pass)
-		}
 		nodelay, interval, resend, nc := c.Int("nodelay"), c.Int("interval"), c.Int("resend"), c.Int("nc")
 
 		switch c.String("mode") {
@@ -185,7 +174,19 @@ func main() {
 		log.Println("acknodelay:", c.Bool("acknodelay"))
 		log.Println("dscp:", c.Int("dscp"))
 		log.Println("conn:", c.Int("conn"))
+
 		createConn := func() *yamux.Session {
+			var block kcp.BlockCrypt
+			switch c.String("crypt") {
+			case "tea":
+				block, _ = kcp.NewTEABlockCrypt(pass[:16])
+			case "xor":
+				block, _ = kcp.NewSimpleXORBlockCrypt(pass)
+			case "none":
+				block, _ = kcp.NewNoneBlockCrypt(pass)
+			default:
+				block, _ = kcp.NewAESBlockCrypt(pass)
+			}
 			kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
 			checkError(err)
 			kcpconn.SetNoDelay(nodelay, interval, resend, nc)
