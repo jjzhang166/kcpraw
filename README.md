@@ -24,6 +24,10 @@ CLIENT:   -mtu 1400 -sndwnd 256 -rcvwnd 2048 -mode fast2
 ```
 *巭孬嫑乱动*        
 
+### *DSCP* :lollipop: 
+DSCP差分服务代码点（Differentiated Services Code Point），IETF于1998年12月发布了Diff-Serv（Differentiated Service）的QoS分类标准。它在每个数据包IP头部的服务类别TOS标识字节中，利用已使用的6比特和未使用的2比特，通过编码值来区分优先级。     
+常用DSCP值可以参考[Wikipedia DSCP](https://en.wikipedia.org/wiki/Differentiated_services#Commonly_used_DSCP_values)，至于有没有用，完全取决于数据包经过的设备。
+
 ### *内置模式* :lollipop: 
 响应速度:     
 *fast3 >* ***[fast2]*** *> fast > normal > default*        
