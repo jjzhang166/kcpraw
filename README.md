@@ -39,6 +39,9 @@ DSCP差分服务代码点（Differentiated Services Code Point），IETF于1998�
  -mode manual -nodelay 1 -resend 2 -nc 1 -interval 20
 ```
 
+### *前向纠错* :lollipop: 
+前向纠错采用XOR，即固定-fec N个数据包产生一个纠错码，数据增量为```1 / (N+1)```, 比如```N=4```增加```1/(4+1) = 20%``` 的数据传输，网络质量好的情况下，可以关闭前向纠错，通常情况下应该开启。
+
 ### *SNMP* :lollipop:
 ```go
 // Snmp defines network statistics indicator
