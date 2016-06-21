@@ -9,5 +9,8 @@ install:
     - go get github.com/xtaci/kcptun/server
 before_script:
 script:
+    - cd $HOME/gopath/src/client
+    - $HOME/gopath/bin/goveralls -service=travis-ci
+    - cd $HOME/gopath/src/server
     - $HOME/gopath/bin/goveralls -service=travis-ci
     - exit 0
