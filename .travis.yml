@@ -1,0 +1,9 @@
+language: go
+go:
+    - 1.6
+install:
+    - go get github.com/xtaci/kcptun/client
+    - go get github.com/xtaci/kcptun/server
+before_script:
+script:
+    - exit 0
