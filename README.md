@@ -1,11 +1,14 @@
 # *kcptun*
-[![GoDoc][1]][2] [![Build Status][3]][4] [![Go Report Card][5]][6]        
+[![GoDoc][1]][2] [![Build Status][3]][4] [![Go Report Card][5]][6] [![Coverage Statusd][7]][8]
 [1]: https://godoc.org/github.com/xtaci/kcptun?status.svg
 [2]: https://godoc.org/github.com/xtaci/kcptun
 [3]: https://travis-ci.org/xtaci/kcptun.svg?branch=master
 [4]: https://travis-ci.org/xtaci/kcptun
 [5]: https://goreportcard.com/badge/xtaci/kcptun
 [6]: https://goreportcard.com/report/xtaci/kcptun
+[7]: https://coveralls.io/repos/github/xtaci/kcptun/badge.svg?branch=master
+[8]: https://coveralls.io/github/xtaci/kcptun?branch=master
+
 TCP流转换为KCP+UDP流，:zap:***[下载地址](https://github.com/xtaci/kcptun/releases/latest)***:zap:工作示意图：  
 
 ![kcptun](kcptun.png)
