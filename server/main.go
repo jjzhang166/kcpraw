@@ -131,9 +131,14 @@ func main() {
 			Usage: "set receive window size(num of packets)",
 		},
 		cli.IntFlag{
-			Name:  "fec",
-			Value: 4,
-			Usage: "set FEC group size, must be the same as client",
+			Name:  "datashard",
+			Value: 10,
+			Usage: "set reed-solomon erasure coding - datashard",
+		},
+		cli.IntFlag{
+			Name:  "parityshard",
+			Value: 3,
+			Usage: "set reed-solomon erasure coding - parityshard",
 		},
 		cli.BoolFlag{
 			Name:  "acknodelay",
@@ -192,7 +197,7 @@ func main() {
 			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
 
-		lis, err := kcp.ListenWithOptions(c.Int("fec"), c.String("listen"), block)
+		lis, err := kcp.ListenWithOptions(c.String("listen"), block, c.Int("datashard"), c.Int("parityshard"))
 		if err != nil {
 			log.Fatal(err)
 		}

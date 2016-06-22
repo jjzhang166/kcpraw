@@ -108,9 +108,14 @@ func main() {
 			Usage: "set receive window size(num of packets)",
 		},
 		cli.IntFlag{
-			Name:  "fec",
-			Value: 4,
-			Usage: "set FEC group size, must be the same as server",
+			Name:  "datashard",
+			Value: 10,
+			Usage: "set reed-solomon erasure coding - datashard",
+		},
+		cli.IntFlag{
+			Name:  "parityshard",
+			Value: 3,
+			Usage: "set reed-solomon erasure coding - parityshard",
 		},
 		cli.BoolFlag{
 			Name:  "acknodelay",
@@ -187,7 +192,7 @@ func main() {
 			default:
 				block, _ = kcp.NewAESBlockCrypt(pass)
 			}
-			kcpconn, err := kcp.DialWithOptions(c.Int("fec"), c.String("remoteaddr"), block)
+			kcpconn, err := kcp.DialWithOptions(c.String("remoteaddr"), block, c.Int("datashard"), c.Int("parityshard"))
 			checkError(err)
 			kcpconn.SetNoDelay(nodelay, interval, resend, nc)
 			kcpconn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
