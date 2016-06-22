@@ -50,7 +50,9 @@ DSCP差分服务代码点（Differentiated Services Code Point），IETF于1998�
 ```
 
 ### *前向纠错* :lollipop: 
-前向纠错采用XOR，即固定-fec N个数据包产生一个纠错码，数据增量为```1/N```, 比如```N=4```增加```1/4 = 25%``` 的数据传输，网络质量好的情况下，可以关闭前向纠错，通常情况下应该开启。
+前向纠错采用Reed Solomon纠删码, 它的基本原理如下： 给定n个数据块d1, d2,…, dn，n和一个正整数m， RS根据n个数据块生成m个校验块， c1, c2,…, cm。 对于任意的n和m， 从n个原始数据块和m 个校验块中任取n块就能解码出原始数据， 即RS最多容忍m个数据块或者校验块同时丢失。
+
+通过```-datashard 10 -parityshard 3``` 可以调整FEC参数。
 
 ### *SNMP* :lollipop:
 ```go
