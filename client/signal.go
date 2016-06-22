@@ -12,10 +12,10 @@ import (
 )
 
 func init() {
-	go sig_handler()
+	go sigHandler()
 }
 
-func sig_handler() {
+func sigHandler() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGUSR1)
 
