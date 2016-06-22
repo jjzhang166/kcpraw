@@ -175,7 +175,7 @@ func main() {
 		log.Println("remote address:", c.String("remoteaddr"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
 		log.Println("mtu:", c.Int("mtu"))
-		log.Println("fec:", c.Int("fec"))
+		log.Println("datashard:", c.Int("datashard"), "parityshard:", c.Int("parityshard"))
 		log.Println("acknodelay:", c.Bool("acknodelay"))
 		log.Println("dscp:", c.Int("dscp"))
 		log.Println("conn:", c.Int("conn"))
