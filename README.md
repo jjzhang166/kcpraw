@@ -58,24 +58,25 @@ DSCP差分服务代码点（Differentiated Services Code Point），IETF于1998�
 ```go
 // Snmp defines network statistics indicator
 type Snmp struct {
-    BytesSent       uint64 // payload bytes sent
-    BytesReceived   uint64
-    MaxConn         uint64
-    ActiveOpens     uint64
-    PassiveOpens    uint64
-    CurrEstab       uint64
-    InErrs          uint64
-    InCsumErrors    uint64 // checksum errors
-    InSegs          uint64
-    OutSegs         uint64
-    OutBytes        uint64 // udp bytes sent
-    RetransSegs     uint64
-    FastRetransSegs uint64
-    LostSegs        uint64
-    RepeatSegs      uint64
-    FECRecovered    uint64
-    FECErrs         uint64
-    FECSegs         uint64 // fec segments received
+	BytesSent        uint64 // payload bytes sent
+	BytesReceived    uint64
+	MaxConn          uint64
+	ActiveOpens      uint64
+	PassiveOpens     uint64
+	CurrEstab        uint64
+	InErrs           uint64
+	InCsumErrors     uint64 // checksum errors
+	InSegs           uint64
+	OutSegs          uint64
+	OutBytes         uint64 // udp bytes sent
+	RetransSegs      uint64
+	FastRetransSegs  uint64
+	EarlyRetransSegs uint64
+	LostSegs         uint64
+	RepeatSegs       uint64
+	FECRecovered     uint64
+	FECErrs          uint64
+	FECSegs          uint64 // fec segments received
 }
 ```
 
