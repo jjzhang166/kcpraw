@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	"github.com/golang/snappy"
 	"github.com/hashicorp/yamux"
 	"github.com/urfave/cli"
 	"github.com/xtaci/kcp-go"
@@ -21,8 +22,36 @@ var (
 	SALT    = "kcp-go"
 )
 
+type compStream struct {
+	conn net.Conn
+	w    *snappy.Writer
+	r    *snappy.Reader
+}
+
+func (c *compStream) Read(p []byte) (n int, err error) {
+	return c.r.Read(p)
+}
+
+func (c *compStream) Write(p []byte) (n int, err error) {
+	n, err = c.w.Write(p)
+	err = c.w.Flush()
+	return n, err
+}
+
+func (c *compStream) Close() error {
+	return c.conn.Close()
+}
+
+func newCompStream(conn net.Conn) *compStream {
+	c := new(compStream)
+	c.conn = conn
+	c.w = snappy.NewBufferedWriter(conn)
+	c.r = snappy.NewReader(conn)
+	return c
+}
+
 // handle multiplex-ed connection
-func handleMux(conn *kcp.UDPSession, target string) {
+func handleMux(conn io.ReadWriteCloser, target string) {
 	// stream multiplex
 	var mux *yamux.Session
 	config := &yamux.Config{
@@ -56,7 +85,7 @@ func handleMux(conn *kcp.UDPSession, target string) {
 	}
 }
 
-func handleClient(p1, p2 net.Conn) {
+func handleClient(p1, p2 io.ReadWriteCloser) {
 	log.Println("stream opened")
 	defer log.Println("stream closed")
 	defer p1.Close()
@@ -129,6 +158,10 @@ func main() {
 			Name:  "rcvwnd",
 			Value: 1024,
 			Usage: "set receive window size(num of packets)",
+		},
+		cli.BoolFlag{
+			Name:  "nocomp",
+			Usage: "disable compression",
 		},
 		cli.IntFlag{
 			Name:  "datashard",
@@ -217,7 +250,12 @@ func main() {
 				conn.SetWindowSize(c.Int("sndwnd"), c.Int("rcvwnd"))
 				conn.SetACKNoDelay(c.Bool("acknodelay"))
 				conn.SetDSCP(c.Int("dscp"))
-				go handleMux(conn, c.String("target"))
+
+				if c.Bool("nocomp") {
+					go handleMux(conn, c.String("target"))
+				} else {
+					go handleMux(newCompStream(conn), c.String("target"))
+				}
 			} else {
 				log.Println(err)
 			}

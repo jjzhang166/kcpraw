@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	"github.com/golang/snappy"
 	"github.com/hashicorp/yamux"
 	"github.com/urfave/cli"
 	"github.com/xtaci/kcp-go"
@@ -21,7 +22,35 @@ var (
 	SALT    = "kcp-go"
 )
 
-func handleClient(p1, p2 net.Conn) {
+type compStream struct {
+	conn net.Conn
+	w    *snappy.Writer
+	r    *snappy.Reader
+}
+
+func (c *compStream) Read(p []byte) (n int, err error) {
+	return c.r.Read(p)
+}
+
+func (c *compStream) Write(p []byte) (n int, err error) {
+	n, err = c.w.Write(p)
+	err = c.w.Flush()
+	return n, err
+}
+
+func (c *compStream) Close() error {
+	return c.conn.Close()
+}
+
+func newCompStream(conn net.Conn) *compStream {
+	c := new(compStream)
+	c.conn = conn
+	c.w = snappy.NewBufferedWriter(conn)
+	c.r = snappy.NewReader(conn)
+	return c
+}
+
+func handleClient(p1, p2 io.ReadWriteCloser) {
 	log.Println("stream opened")
 	defer log.Println("stream closed")
 	defer p1.Close()
@@ -106,6 +135,10 @@ func main() {
 			Name:  "rcvwnd",
 			Value: 1024,
 			Usage: "set receive window size(num of packets)",
+		},
+		cli.BoolFlag{
+			Name:  "nocomp",
+			Usage: "disable compression",
 		},
 		cli.IntFlag{
 			Name:  "datashard",
@@ -209,7 +242,12 @@ func main() {
 				MaxStreamWindowSize:    16777216,
 				LogOutput:              os.Stderr,
 			}
-			session, err := yamux.Client(kcpconn, config)
+			var session *yamux.Session
+			if c.Bool("nocomp") {
+				session, err = yamux.Client(kcpconn, config)
+			} else {
+				session, err = yamux.Client(newCompStream(kcpconn), config)
+			}
 			checkError(err)
 			return session
 		}
