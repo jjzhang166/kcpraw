@@ -207,6 +207,7 @@ func main() {
 		log.Println("nodelay parameters:", nodelay, interval, resend, nc)
 		log.Println("remote address:", c.String("remoteaddr"))
 		log.Println("sndwnd:", c.Int("sndwnd"), "rcvwnd:", c.Int("rcvwnd"))
+		log.Println("compression:", !c.Bool("nocomp"))
 		log.Println("mtu:", c.Int("mtu"))
 		log.Println("datashard:", c.Int("datashard"), "parityshard:", c.Int("parityshard"))
 		log.Println("acknodelay:", c.Bool("acknodelay"))
