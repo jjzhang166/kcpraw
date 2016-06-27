@@ -16,6 +16,12 @@ TCP流转换为KCP+UDP流，:zap:***[下载地址](https://github.com/xtaci/kcpt
 ***kcptun是[kcp](https://github.com/xtaci/kcp-go)协议的一个简单应用，可以用于任意tcp网络程序的传输承载，以提高在丢包环境下的网络流畅度。***   
 _采用极简设计，客户端＋服务器源码总共400行，方便用户自己扩展_ 。        
 
+### *快速设定* :lollipop:
+```
+服务器: ./server_linux_amd64 -t "127.0.0.1:1080" -l ":554" -mode fast2  // 转发到本地1080端口
+客户端: ./client_darwin_amd64 -r "IP地址:554" -l ":1080" -mode fast2    // 监听本地1080端口
+```
+
 ### *使用の方法* :lollipop:
 ![client](client.png)
 ![server](server.png)
