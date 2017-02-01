@@ -16,6 +16,7 @@ import (
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
+	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/xtaci/smux"
 )
 
@@ -322,7 +323,7 @@ func main() {
 			block, _ = kcp.NewAESBlockCrypt(pass)
 		}
 
-		lis, err := kcp.ListenWithOptions(config.Listen, block, config.DataShard, config.ParityShard)
+		lis, err := kcpraw.ListenWithOptions(config.Listen, block, config.DataShard, config.ParityShard)
 		checkError(err)
 		log.Println("listening on:", lis.Addr())
 		log.Println("target:", config.Target)
@@ -339,15 +340,15 @@ func main() {
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
 
-		if err := lis.SetDSCP(config.DSCP); err != nil {
-			log.Println("SetDSCP:", err)
-		}
-		if err := lis.SetReadBuffer(config.SockBuf); err != nil {
-			log.Println("SetReadBuffer:", err)
-		}
-		if err := lis.SetWriteBuffer(config.SockBuf); err != nil {
-			log.Println("SetWriteBuffer:", err)
-		}
+		// if err := lis.SetDSCP(config.DSCP); err != nil {
+		// 	log.Println("SetDSCP:", err)
+		// }
+		// if err := lis.SetReadBuffer(config.SockBuf); err != nil {
+		// 	log.Println("SetReadBuffer:", err)
+		// }
+		// if err := lis.SetWriteBuffer(config.SockBuf); err != nil {
+		// 	log.Println("SetWriteBuffer:", err)
+		// }
 
 		go snmpLogger(config.SnmpLog, config.SnmpPeriod)
 		for {
