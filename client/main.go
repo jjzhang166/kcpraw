@@ -13,11 +13,11 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/xtaci/smux"
 )
 
@@ -224,6 +224,15 @@ func main() {
 			Value: "", // when the value is not empty, the config path must exists
 			Usage: "config from json file, which will override the command from shell",
 		},
+		cli.StringFlag{
+			Name:  "host",
+			Value: "",
+			Usage: "hostname for obfuscating (Experimental)",
+		},
+		cli.BoolFlag{
+			Name:  "nohttp",
+			Usage: "don't send http request after tcp 3-way handshake",
+		},
 	}
 	myApp.Action = func(c *cli.Context) error {
 		config := Config{}
@@ -251,11 +260,16 @@ func main() {
 		config.Log = c.String("log")
 		config.SnmpLog = c.String("snmplog")
 		config.SnmpPeriod = c.Int("snmpperiod")
+		config.NoHTTP = c.Bool("nohttp")
+		config.Host = c.String("host")
 
 		if c.String("c") != "" {
 			err := parseJSONConfig(&config, c.String("c"))
 			checkError(err)
 		}
+
+		kcpraw.HTTPHost = config.Host
+		kcpraw.NoHTTP = config.NoHTTP
 
 		// log redirect
 		if config.Log != "" {
@@ -328,6 +342,11 @@ func main() {
 		log.Println("autoexpire:", config.AutoExpire)
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
+		if config.NoHTTP {
+			log.Println("nohttp: true")
+		} else {
+			log.Println("httphost: ", config.Host)
+		}
 
 		smuxConfig := smux.DefaultConfig()
 		smuxConfig.MaxReceiveBuffer = config.SockBuf

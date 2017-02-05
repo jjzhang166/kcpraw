@@ -13,10 +13,10 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/xtaci/smux"
 )
 
@@ -241,6 +241,10 @@ func main() {
 			Value: "", // when the value is not empty, the config path must exists
 			Usage: "config from json file, which will override the command from shell",
 		},
+		cli.BoolFlag{
+			Name:  "nohttp",
+			Usage: "don't send http request after tcp 3-way handshake",
+		},
 	}
 	myApp.Action = func(c *cli.Context) error {
 		config := Config{}
@@ -266,6 +270,7 @@ func main() {
 		config.Log = c.String("log")
 		config.SnmpLog = c.String("snmplog")
 		config.SnmpPeriod = c.Int("snmpperiod")
+		config.NoHTTP = c.Bool("nohttp")
 
 		if c.String("c") != "" {
 			//Now only support json config file
@@ -280,6 +285,8 @@ func main() {
 			defer f.Close()
 			log.SetOutput(f)
 		}
+
+		kcpraw.NoHTTP = config.NoHTTP
 
 		switch config.Mode {
 		case "normal":
@@ -339,6 +346,7 @@ func main() {
 		log.Println("keepalive:", config.KeepAlive)
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
+		log.Println("nohttp:", config.NoHTTP)
 
 		// if err := lis.SetDSCP(config.DSCP); err != nil {
 		// 	log.Println("SetDSCP:", err)
