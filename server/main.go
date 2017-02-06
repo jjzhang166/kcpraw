@@ -287,6 +287,8 @@ func main() {
 		}
 
 		kcpraw.NoHTTP = config.NoHTTP
+		
+		kcpraw.DSCP = config.DSCP
 
 		switch config.Mode {
 		case "normal":

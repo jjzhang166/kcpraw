@@ -342,11 +342,14 @@ func main() {
 		log.Println("autoexpire:", config.AutoExpire)
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
+		
 		if config.NoHTTP {
 			log.Println("nohttp: true")
 		} else {
 			log.Println("httphost: ", config.Host)
 		}
+		
+		kcpraw.DSCP = config.DSCP
 
 		smuxConfig := smux.DefaultConfig()
 		smuxConfig.MaxReceiveBuffer = config.SockBuf
