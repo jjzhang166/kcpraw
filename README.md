@@ -16,18 +16,16 @@ kcptun 的具体参数与使用方法参见 [kcptun](https://github.com/xtaci/kc
 ```
 ./client_darwin_amd64 -r "KCP_SERVER_IP:KCP_SERVER_PORT" -l ":LOCAL_PORT"
 ```
-为了避免内核返回的 RST 报文影响连接的建立，需要添加相应的 iptables 规则
-linux 服务端
-```
-iptables -A OUTPUT -p tcp --sport <KCP_SERVER_PORT> --tcp-flags RST RST -j DROP
-```
-linux 客户端
-```
-iptables -A OUTPUT -p tcp --tcp-flags RST RST -d <KCP_SERVER_IP> --dport <KCP_SERVER_PORT> -j DROP
-```
-windows 客户端参考 https://www.veritas.com/support/en_US/article.000085856 链接中的方法为 LOCAL_PORT 设置防火墙规则  
 
-伪装的 Host 可以通过选项 --host <name> 进行设置, 如果不希望伪装为 HTTP 流量可以通过设置选项 --nohttp 关闭此功能, 注意客户端和服务端在这一选项上必须保持一致
+### 注意事项
+~~为了避免内核返回的 RST 报文影响连接的建立，需要添加相应的 iptables 规则~~  
+现在 linux 下的客户端和服务端会自动添加和清理 iptables 规则  
+windows 客户端参考 [windows firewall port exceptions](https://www.veritas.com/support/en_US/article.000085856) 链接中的方法为 LOCAL_PORT 设置防火墙规则  
+macos 下使用客户端可以参考 [enable steath mode](http://osxdaily.com/2015/11/18/enable-stealth-mode-mac-os-x-firewall/) 打开静默模式即可  
+由于使用 windows 或者 macos 服务器运行 kcptun 服务的情况并不多见, 并没有进行相应的测试, 所以并不能保证服务端在非 linux 环境下能够正常使用  
+
+伪装的 Host 可以通过选项 --host <name> 进行设置  
+如果不希望伪装为 HTTP 流量可以通过设置选项 --nohttp 关闭此功能, 注意客户端和服务端在这一选项上必须保持一致
 
 ### 构建
 
