@@ -14,11 +14,11 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
+	"github.com/ccsexyz/smux"
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	"github.com/xtaci/smux"
 )
 
 var (
@@ -342,13 +342,13 @@ func main() {
 		log.Println("autoexpire:", config.AutoExpire)
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
-		
+
 		if config.NoHTTP {
 			log.Println("nohttp: true")
 		} else {
 			log.Println("httphost: ", config.Host)
 		}
-		
+
 		kcpraw.DSCP = config.DSCP
 
 		smuxConfig := smux.DefaultConfig()

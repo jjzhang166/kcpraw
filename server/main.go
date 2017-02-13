@@ -14,10 +14,10 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
+	"github.com/ccsexyz/smux"
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	"github.com/xtaci/smux"
 )
 
 var (
@@ -287,7 +287,7 @@ func main() {
 		}
 
 		kcpraw.NoHTTP = config.NoHTTP
-		
+
 		kcpraw.DSCP = config.DSCP
 
 		switch config.Mode {
