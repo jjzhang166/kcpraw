@@ -19,6 +19,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -412,6 +414,16 @@ func main() {
 			muxes[k].session = sess
 			muxes[k].ttl = time.Now().Add(time.Duration(config.AutoExpire) * time.Second)
 		}
+		
+		sigch := make(chan os.Signal, 2)
+		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)
+		go func() {
+			<-sigch
+			for _, v := range muxes {
+				v.session.Close()
+			}
+			os.Exit(1)
+		}()
 
 		chScavenger := make(chan *smux.Session, 128)
 		go scavenger(chScavenger)

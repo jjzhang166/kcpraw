@@ -18,6 +18,8 @@ import (
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
+	"os/signal"
+	"syscall"
 )
 
 var (
@@ -359,6 +361,14 @@ func main() {
 		// if err := lis.SetWriteBuffer(config.SockBuf); err != nil {
 		// 	log.Println("SetWriteBuffer:", err)
 		// }
+		
+		sigch := make(chan os.Signal, 2)
+		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)
+		go func() {
+			<-sigch
+			lis.Close()
+			os.Exit(1)
+		}()
 
 		go snmpLogger(config.SnmpLog, config.SnmpPeriod)
 		for {
