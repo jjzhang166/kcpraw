@@ -23,8 +23,13 @@ for os in ${OSES[@]}; do
 		then
 			suffix=".exe"
 		fi
-		env CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o client_${os}_${arch}${suffix} github.com/ccsexyz/kcptun/client
-		env CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o server_${os}_${arch}${suffix} github.com/ccsexyz/kcptun/server
+        cgo_enabled=1
+        if [ "$os" == "linux" ]
+        then 
+            cgo_enabled=0
+        fi 
+        env CGO_ENABLED=$cgo_enabled GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o client_${os}_${arch}${suffix} github.com/ccsexyz/kcptun/client
+        env CGO_ENABLED=$cgo_enabled GOOS=$os GOARCH=$arch go build -ldflags "$LDFLAGS" -gcflags "$GCFLAGS" -o server_${os}_${arch}${suffix} github.com/ccsexyz/kcptun/server
 		if $UPX; then upx -9 client_${os}_${arch}${suffix} server_${os}_${arch}${suffix};fi
 		tar -zcf kcptun-${os}-${arch}-$VERSION.tar.gz client_${os}_${arch}${suffix} server_${os}_${arch}${suffix}
 		$MD5 kcptun-${os}-${arch}-$VERSION.tar.gz
