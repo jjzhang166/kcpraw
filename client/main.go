@@ -13,14 +13,15 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	"os/signal"
+	"syscall"
+
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/ccsexyz/smux"
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	"os/signal"
-	"syscall"
 )
 
 var (
@@ -165,7 +166,7 @@ func main() {
 		cli.IntFlag{
 			Name:  "dscp",
 			Value: 0,
-			Usage: "set DSCP(6bit)",
+			Usage: "set dscp(6bit)",
 		},
 		cli.BoolFlag{
 			Name:  "nocomp",
@@ -235,6 +236,10 @@ func main() {
 			Name:  "nohttp",
 			Usage: "don't send http request after tcp 3-way handshake",
 		},
+		cli.BoolFlag{
+			Name:  "ignrst",
+			Usage: "ignore tcp rst packet(set it with caution)",
+		},
 	}
 	myApp.Action = func(c *cli.Context) error {
 		config := Config{}
@@ -264,14 +269,17 @@ func main() {
 		config.SnmpPeriod = c.Int("snmpperiod")
 		config.NoHTTP = c.Bool("nohttp")
 		config.Host = c.String("host")
+		config.IgnRST = c.Bool("ignrst")
 
 		if c.String("c") != "" {
 			err := parseJSONConfig(&config, c.String("c"))
 			checkError(err)
 		}
 
-		kcpraw.HTTPHost = config.Host
-		kcpraw.NoHTTP = config.NoHTTP
+		kcpraw.SetNoHTTP(config.NoHTTP)
+		kcpraw.SetHost(config.Host)
+		kcpraw.SetDSCP(config.DSCP)
+		kcpraw.SetIgnRST(config.IgnRST)
 
 		// log redirect
 		if config.Log != "" {
@@ -351,8 +359,6 @@ func main() {
 			log.Println("httphost: ", config.Host)
 		}
 
-		kcpraw.DSCP = config.DSCP
-
 		smuxConfig := smux.DefaultConfig()
 		smuxConfig.MaxReceiveBuffer = config.SockBuf
 
@@ -368,7 +374,7 @@ func main() {
 			kcpconn.SetACKNoDelay(config.AckNodelay)
 			kcpconn.SetKeepAlive(config.KeepAlive)
 
-			// if err := kcpconn.SetDSCP(config.DSCP); err != nil {
+			// if err := kcpconn.SetDSCP(config.dscp); err != nil {
 			// 	log.Println("SetDSCP:", err)
 			// }
 			// if err := kcpconn.SetReadBuffer(config.SockBuf); err != nil {
@@ -414,7 +420,7 @@ func main() {
 			muxes[k].session = sess
 			muxes[k].ttl = time.Now().Add(time.Duration(config.AutoExpire) * time.Second)
 		}
-		
+
 		sigch := make(chan os.Signal, 2)
 		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)
 		go func() {

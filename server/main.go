@@ -13,13 +13,14 @@ import (
 
 	"golang.org/x/crypto/pbkdf2"
 
+	"os/signal"
+	"syscall"
+
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
 	"github.com/ccsexyz/smux"
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
-	"os/signal"
-	"syscall"
 )
 
 var (
@@ -182,7 +183,7 @@ func main() {
 		cli.IntFlag{
 			Name:  "dscp",
 			Value: 0,
-			Usage: "set DSCP(6bit)",
+			Usage: "set dscp(6bit)",
 		},
 		cli.BoolFlag{
 			Name:  "nocomp",
@@ -247,6 +248,10 @@ func main() {
 			Name:  "nohttp",
 			Usage: "don't send http request after tcp 3-way handshake",
 		},
+		cli.BoolFlag{
+			Name:  "ignrst",
+			Usage: "ignore tcp rst packet(set it with caution)",
+		},
 	}
 	myApp.Action = func(c *cli.Context) error {
 		config := Config{}
@@ -273,6 +278,7 @@ func main() {
 		config.SnmpLog = c.String("snmplog")
 		config.SnmpPeriod = c.Int("snmpperiod")
 		config.NoHTTP = c.Bool("nohttp")
+		config.IgnRST = c.Bool("ignrst")
 
 		if c.String("c") != "" {
 			//Now only support json config file
@@ -288,9 +294,9 @@ func main() {
 			log.SetOutput(f)
 		}
 
-		kcpraw.NoHTTP = config.NoHTTP
-
-		kcpraw.DSCP = config.DSCP
+		kcpraw.SetNoHTTP(config.NoHTTP)
+		kcpraw.SetDSCP(config.DSCP)
+		kcpraw.SetIgnRST(config.IgnRST)
 
 		switch config.Mode {
 		case "normal":
@@ -352,7 +358,7 @@ func main() {
 		log.Println("snmpperiod:", config.SnmpPeriod)
 		log.Println("nohttp:", config.NoHTTP)
 
-		// if err := lis.SetDSCP(config.DSCP); err != nil {
+		// if err := lis.SetDSCP(config.dscp); err != nil {
 		// 	log.Println("SetDSCP:", err)
 		// }
 		// if err := lis.SetReadBuffer(config.SockBuf); err != nil {
@@ -361,7 +367,7 @@ func main() {
 		// if err := lis.SetWriteBuffer(config.SockBuf); err != nil {
 		// 	log.Println("SetWriteBuffer:", err)
 		// }
-		
+
 		sigch := make(chan os.Signal, 2)
 		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)
 		go func() {
