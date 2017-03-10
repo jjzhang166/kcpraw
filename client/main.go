@@ -368,6 +368,7 @@ func main() {
 
 		smuxConfig := smux.DefaultConfig()
 		smuxConfig.MaxReceiveBuffer = config.SockBuf
+		smuxConfig.KeepAliveInterval = time.Duration(config.KeepAlive) * time.Second
 
 		createConn := func() (*smux.Session, error) {
 			kcpconn, err := kcpraw.DialWithOptions(config.RemoteAddr, block, config.DataShard, config.ParityShard)
@@ -379,7 +380,6 @@ func main() {
 			kcpconn.SetWindowSize(config.SndWnd, config.RcvWnd)
 			kcpconn.SetMtu(config.MTU)
 			kcpconn.SetACKNoDelay(config.AckNodelay)
-			kcpconn.SetKeepAlive(config.KeepAlive)
 
 			// stream multiplex
 			var session *smux.Session

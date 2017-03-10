@@ -63,6 +63,7 @@ func handleMux(conn io.ReadWriteCloser, config *Config) {
 	// stream multiplex
 	smuxConfig := smux.DefaultConfig()
 	smuxConfig.MaxReceiveBuffer = config.SockBuf
+	smuxConfig.KeepAliveInterval = time.Duration(config.KeepAlive) * time.Second
 	mux, err := smux.Server(conn, smuxConfig)
 	if err != nil {
 		log.Println(err)
@@ -369,7 +370,6 @@ func main() {
 				conn.SetMtu(config.MTU)
 				conn.SetWindowSize(config.SndWnd, config.RcvWnd)
 				conn.SetACKNoDelay(config.AckNodelay)
-				conn.SetKeepAlive(config.KeepAlive)
 
 				if config.NoComp {
 					go handleMux(conn, &config)
