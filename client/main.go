@@ -60,14 +60,14 @@ func newCompStream(conn net.Conn) *compStream {
 }
 
 func handleClient(sess *smux.Session, p1 io.ReadWriteCloser) {
+	defer p1.Close()
 	p2, err := sess.OpenStream()
 	if err != nil {
 		return
 	}
-
+	
 	log.Println("stream opened")
 	defer log.Println("stream closed")
-	defer p1.Close()
 	defer p2.Close()
 
 	// start tunnel
@@ -297,13 +297,13 @@ func main() {
 
 		switch config.Mode {
 		case "normal":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 30, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 50, 2, 1
 		case "fast":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 20, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 40, 2, 1
 		case "fast2":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 20, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 30, 2, 1
 		case "fast3":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 10, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 20, 2, 1
 		}
 
 		log.Println("version:", VERSION)
@@ -381,16 +381,6 @@ func main() {
 			kcpconn.SetACKNoDelay(config.AckNodelay)
 			kcpconn.SetKeepAlive(config.KeepAlive)
 
-			// if err := kcpconn.SetDSCP(config.dscp); err != nil {
-			// 	log.Println("SetDSCP:", err)
-			// }
-			// if err := kcpconn.SetReadBuffer(config.SockBuf); err != nil {
-			// 	log.Println("SetReadBuffer:", err)
-			// }
-			// if err := kcpconn.SetWriteBuffer(config.SockBuf); err != nil {
-			// 	log.Println("SetWriteBuffer:", err)
-			// }
-
 			// stream multiplex
 			var session *smux.Session
 			if config.NoComp {
@@ -446,12 +436,6 @@ func main() {
 			p1, err := listener.AcceptTCP()
 			if err != nil {
 				log.Fatalln(err)
-			}
-			if err := p1.SetReadBuffer(config.SockBuf); err != nil {
-				log.Println("TCP SetReadBuffer:", err)
-			}
-			if err := p1.SetWriteBuffer(config.SockBuf); err != nil {
-				log.Println("TCP SetWriteBuffer:", err)
 			}
 			checkError(err)
 			idx := rr % numconn

@@ -81,12 +81,6 @@ func handleMux(conn io.ReadWriteCloser, config *Config) {
 			log.Println(err)
 			continue
 		}
-		if err := p2.(*net.TCPConn).SetReadBuffer(config.SockBuf); err != nil {
-			log.Println("TCP SetReadBuffer:", err)
-		}
-		if err := p2.(*net.TCPConn).SetWriteBuffer(config.SockBuf); err != nil {
-			log.Println("TCP SetWriteBuffer:", err)
-		}
 		go handleClient(p1, p2)
 	}
 }
@@ -300,13 +294,13 @@ func main() {
 
 		switch config.Mode {
 		case "normal":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 30, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 50, 2, 1
 		case "fast":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 20, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 40, 2, 1
 		case "fast2":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 20, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 30, 2, 1
 		case "fast3":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 10, 2, 1
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 20, 2, 1
 		}
 
 		log.Println("version:", VERSION)
@@ -357,16 +351,6 @@ func main() {
 		log.Println("snmplog:", config.SnmpLog)
 		log.Println("snmpperiod:", config.SnmpPeriod)
 		log.Println("nohttp:", config.NoHTTP)
-
-		// if err := lis.SetDSCP(config.dscp); err != nil {
-		// 	log.Println("SetDSCP:", err)
-		// }
-		// if err := lis.SetReadBuffer(config.SockBuf); err != nil {
-		// 	log.Println("SetReadBuffer:", err)
-		// }
-		// if err := lis.SetWriteBuffer(config.SockBuf); err != nil {
-		// 	log.Println("SetWriteBuffer:", err)
-		// }
 
 		sigch := make(chan os.Signal, 2)
 		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM)
