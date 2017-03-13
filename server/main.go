@@ -120,7 +120,7 @@ func main() {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
 	myApp := cli.NewApp()
-	myApp.Name = "kcptun"
+	myApp.Name = "kcpraw"
 	myApp.Usage = "server(with SMUX)"
 	myApp.Version = VERSION
 	myApp.Flags = []cli.Flag{

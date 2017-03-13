@@ -34,7 +34,7 @@ type Config struct {
 	NoHTTP       bool   `json:"nohttp"`
 	Host         string `json:"host"`
 	IgnRST       bool   `json:"ignrst"`
-	ScavengeTTL  int    `json:"scavengettl`
+	ScavengeTTL  int    `json:"scavengettl"`
 }
 
 func parseJSONConfig(config *Config, path string) error {

@@ -1,4 +1,4 @@
-## kcptun-raw
+## kcpraw
 
 运行在伪造的 TCP 协议之上的 kcptun, 主要目的是避免 ISP 对 UDP 协议可能的 QOS.  
 在三次握手后会进行 HTTP 握手, 将流量伪装成 HTTP 流量.  
@@ -10,11 +10,11 @@ kcptun 的具体参数与使用方法参见 [kcptun](https://github.com/xtaci/kc
   
 服务端  
 ```
-./server_linux_amd64 -t "TARGET_IP:TARGET_PORT" -l "KCP_SERVER_IP:KCP_SERVER_PORT"
+./kcpraw_server_linux_amd64 -t "TARGET_IP:TARGET_PORT" -l "KCP_SERVER_IP:KCP_SERVER_PORT"
 ```  
 客户端  
 ```
-./client_darwin_amd64 -r "KCP_SERVER_IP:KCP_SERVER_PORT" -l ":LOCAL_PORT"
+./kcpraw_client_darwin_amd64 -r "KCP_SERVER_IP:KCP_SERVER_PORT" -l ":LOCAL_PORT"
 ```
 
 ### 注意事项
@@ -22,6 +22,7 @@ kcptun 的具体参数与使用方法参见 [kcptun](https://github.com/xtaci/kc
 现在 linux 下的客户端和服务端会自动添加和清理 iptables 规则  
 
 windows 客户端参考 [windows firewall port exceptions](https://www.veritas.com/support/en_US/article.000085856) 链接中的方法为 LOCAL_PORT 设置防火墙规则  
+windows 下推荐直接下载编译好的客户端,依赖 [winpcap](http://www.winpcap.org/install/)  
 
 ~~macos 下使用客户端可以参考 [enable steath mode](http://osxdaily.com/2015/11/18/enable-stealth-mode-mac-os-x-firewall/) 打开静默模式即可~~  
 macos 下使用推荐通过设置 pf 规则来过滤 RST 报文 
@@ -43,10 +44,9 @@ sudo pfctl -e
 ### 构建
 
 ```
-go get github.com/ccsexyz/kcptun/client  
-go get github.com/ccsexyz/kcptun/server  
+go get -u -v github.com/ccsexyz/kcpraw/client  
+go get -u -v github.com/ccsexyz/kcpraw/server  
 ```
 
-windows 下依赖 [winpcap](http://www.winpcap.org/install/) 和 gcc 请自行解决环境问题    
-  
-对 windows10 使用者你可能需要参考这个链接 [stackoverflow](http://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit)
+windows 下编译依赖 [winpcap](http://www.winpcap.org/install/) 和 gcc 请自行解决环境问题    
+对 windows10 使用者你可能需要参考这个链接 [stackoverflow](http://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit)　　
