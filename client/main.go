@@ -65,7 +65,7 @@ func handleClient(sess *smux.Session, p1 io.ReadWriteCloser) {
 	if err != nil {
 		return
 	}
-	
+
 	log.Println("stream opened")
 	defer log.Println("stream closed")
 	defer p2.Close()
@@ -297,13 +297,13 @@ func main() {
 
 		switch config.Mode {
 		case "normal":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 50, 2, 1
-		case "fast":
 			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 40, 2, 1
+		case "fast":
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 0, 30, 2, 1
 		case "fast2":
-			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 30, 2, 1
-		case "fast3":
 			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 20, 2, 1
+		case "fast3":
+			config.NoDelay, config.Interval, config.Resend, config.NoCongestion = 1, 10, 2, 1
 		}
 
 		log.Println("version:", VERSION)
@@ -376,6 +376,7 @@ func main() {
 				return nil, errors.Wrap(err, "createConn()")
 			}
 			kcpconn.SetStreamMode(true)
+			kcpconn.SetWriteDelay(true)
 			kcpconn.SetNoDelay(config.NoDelay, config.Interval, config.Resend, config.NoCongestion)
 			kcpconn.SetWindowSize(config.SndWnd, config.RcvWnd)
 			kcpconn.SetMtu(config.MTU)
