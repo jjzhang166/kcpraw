@@ -28,7 +28,8 @@ windows 下推荐直接下载编译好的客户端,依赖 [winpcap](http://www.w
 macos 下使用推荐通过设置 pf 规则来过滤 RST 报文 
 ```
 # 在 /etc/pf.conf 文件后添加一行 
-block drop proto tcp from any to any flags R/R
+block drop proto tcp from any to <your kcp-server ip address> flags R/R
+# 例如 block drop proto tcp from any to 45.88.75.23 flags R/R  
 # 然后在终端下执行 
 sudo pfctl -f /etc/pf.conf 
 sudo pfctl -e 
