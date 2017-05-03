@@ -17,7 +17,7 @@ import (
 	"syscall"
 
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
-	"github.com/ccsexyz/smux"
+	"github.com/ccsexyz/mux"
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
@@ -32,6 +32,7 @@ var (
 )
 
 type compStream struct {
+	net.Conn
 	conn net.Conn
 	w    *snappy.Writer
 	r    *snappy.Reader
@@ -53,15 +54,16 @@ func (c *compStream) Close() error {
 
 func newCompStream(conn net.Conn) *compStream {
 	c := new(compStream)
+	c.Conn = conn
 	c.conn = conn
 	c.w = snappy.NewBufferedWriter(conn)
 	c.r = snappy.NewReader(conn)
 	return c
 }
 
-func handleClient(sess *smux.Session, p1 io.ReadWriteCloser) {
+func handleClient(sess *mux.Mux, p1 io.ReadWriteCloser) {
 	defer p1.Close()
-	p2, err := sess.OpenStream()
+	p2, err := sess.Dial()
 	if err != nil {
 		return
 	}
@@ -99,7 +101,7 @@ func main() {
 	}
 	myApp := cli.NewApp()
 	myApp.Name = "kcpraw"
-	myApp.Usage = "client(with SMUX)"
+	myApp.Usage = "client(with MUX)"
 	myApp.Version = VERSION
 	myApp.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -366,11 +368,7 @@ func main() {
 			log.Println("httphost: ", config.Host)
 		}
 
-		smuxConfig := smux.DefaultConfig()
-		smuxConfig.MaxReceiveBuffer = config.SockBuf
-		smuxConfig.KeepAliveInterval = time.Duration(config.KeepAlive) * time.Second
-
-		createConn := func() (*smux.Session, error) {
+		createConn := func() (*mux.Mux, error) {
 			kcpconn, err := kcpraw.DialWithOptions(config.RemoteAddr, block, config.DataShard, config.ParityShard)
 			if err != nil {
 				return nil, errors.Wrap(err, "createConn()")
@@ -383,23 +381,20 @@ func main() {
 			kcpconn.SetACKNoDelay(config.AckNodelay)
 
 			// stream multiplex
-			var session *smux.Session
+			var mx *mux.Mux
 			if config.NoComp {
-				session, err = smux.Client(kcpconn, smuxConfig)
+				mx, err = mux.NewMux(kcpconn)
 			} else {
-				session, err = smux.Client(newCompStream(kcpconn), smuxConfig)
+				mx, err = mux.NewMux(newCompStream(kcpconn))
 			}
-			if err != nil {
-				return nil, errors.Wrap(err, "createConn()")
-			}
-			return session, nil
+			return mx, nil
 		}
 
 		// wait until a connection is ready
-		waitConn := func() *smux.Session {
+		waitConn := func() *mux.Mux {
 			for {
-				if session, err := createConn(); err == nil {
-					return session
+				if mx, err := createConn(); err == nil {
+					return mx
 				} else {
 					time.Sleep(time.Second)
 				}
@@ -408,7 +403,7 @@ func main() {
 
 		numconn := uint16(config.Conn)
 		muxes := make([]struct {
-			session *smux.Session
+			session *mux.Mux
 			ttl     time.Time
 		}, numconn)
 
@@ -429,7 +424,7 @@ func main() {
 			os.Exit(1)
 		}()
 
-		chScavenger := make(chan *smux.Session, 128)
+		chScavenger := make(chan *mux.Mux, 128)
 		go scavenger(chScavenger, config.ScavengeTTL)
 		go snmpLogger(config.SnmpLog, config.SnmpPeriod)
 		rr := uint16(0)
@@ -456,11 +451,11 @@ func main() {
 }
 
 type scavengeSession struct {
-	session *smux.Session
+	session *mux.Mux
 	ts      time.Time
 }
 
-func scavenger(ch chan *smux.Session, ttl int) {
+func scavenger(ch chan *mux.Mux, ttl int) {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	var sessionList []scavengeSession
@@ -473,7 +468,7 @@ func scavenger(ch chan *smux.Session, ttl int) {
 			var newList []scavengeSession
 			for k := range sessionList {
 				s := sessionList[k]
-				if s.session.NumStreams() == 0 || s.session.IsClosed() {
+				if s.session.NumOfConns() == 0 || s.session.IsClosed() {
 					log.Println("session normally closed")
 					s.session.Close()
 				} else if ttl >= 0 && time.Since(s.ts) >= time.Duration(ttl)*time.Second {

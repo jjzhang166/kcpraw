@@ -17,7 +17,7 @@ import (
 	"syscall"
 
 	kcpraw "github.com/ccsexyz/kcp-go-raw"
-	"github.com/ccsexyz/smux"
+	"github.com/ccsexyz/mux"
 	"github.com/golang/snappy"
 	"github.com/urfave/cli"
 	kcp "github.com/xtaci/kcp-go"
@@ -31,6 +31,7 @@ var (
 )
 
 type compStream struct {
+	net.Conn
 	conn net.Conn
 	w    *snappy.Writer
 	r    *snappy.Reader
@@ -52,6 +53,7 @@ func (c *compStream) Close() error {
 
 func newCompStream(conn net.Conn) *compStream {
 	c := new(compStream)
+	c.Conn = conn
 	c.conn = conn
 	c.w = snappy.NewBufferedWriter(conn)
 	c.r = snappy.NewReader(conn)
@@ -59,19 +61,16 @@ func newCompStream(conn net.Conn) *compStream {
 }
 
 // handle multiplex-ed connection
-func handleMux(conn io.ReadWriteCloser, config *Config) {
+func handleMux(conn net.Conn, config *Config) {
 	// stream multiplex
-	smuxConfig := smux.DefaultConfig()
-	smuxConfig.MaxReceiveBuffer = config.SockBuf
-	smuxConfig.KeepAliveInterval = time.Duration(config.KeepAlive) * time.Second
-	mux, err := smux.Server(conn, smuxConfig)
+	mx, err := mux.NewMux(conn)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	defer mux.Close()
+	defer mx.Close()
 	for {
-		p1, err := mux.AcceptStream()
+		p1, err := mx.Accept()
 		if err != nil {
 			log.Println(err)
 			return
@@ -121,7 +120,7 @@ func main() {
 	}
 	myApp := cli.NewApp()
 	myApp.Name = "kcpraw"
-	myApp.Usage = "server(with SMUX)"
+	myApp.Usage = "server(with MUX)"
 	myApp.Version = VERSION
 	myApp.Flags = []cli.Flag{
 		cli.StringFlag{
