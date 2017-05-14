@@ -1,10 +1,10 @@
-## kcpraw
+# kcpraw
 
 运行在伪造的 TCP 协议之上的 kcptun, 主要目的是避免 ISP 对 UDP 协议可能的 QOS.  
 在三次握手后会进行 HTTP 握手, 将流量伪装成 HTTP 流量.  
 kcptun 的具体参数与使用方法参见 [kcptun](https://github.com/xtaci/kcptun)  
 
-### 基本用法  
+## 基本用法  
 
 为了使用原始套接字，服务端与客户端都需要 root 权限  
   
@@ -17,7 +17,7 @@ kcptun 的具体参数与使用方法参见 [kcptun](https://github.com/xtaci/kc
 ./kcpraw_client_darwin_amd64 -r "KCP_SERVER_IP:KCP_SERVER_PORT" -l ":LOCAL_PORT"
 ```
 
-### 注意事项
+## 注意事项
 ~~为了避免内核返回的 RST 报文影响连接的建立，需要添加相应的 iptables 规则~~  
 现在 linux 下的客户端和服务端会自动添加和清理 iptables 规则  
 
@@ -42,7 +42,7 @@ sudo pfctl -e
 伪装的 Host 可以通过选项 --host <name> 进行设置  
 如果不希望伪装为 HTTP 流量可以通过设置选项 --nohttp 关闭此功能, 注意客户端和服务端在这一选项上必须保持一致
 
-### 构建
+## 构建
 
 ```
 go get -u -v github.com/ccsexyz/kcpraw/client  
